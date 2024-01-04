@@ -2,11 +2,10 @@
 
 namespace Stimulsoft\Viewer;
 
-class StiFirstDayOfWeek
+enum StiFirstDayOfWeek: string
 {
-    public const Auto = 'Stimulsoft.Viewer.StiFirstDayOfWeek.Auto';
+    case Auto = 'Stimulsoft.Viewer.StiFirstDayOfWeek.Auto';
+    case Monday = 'Stimulsoft.Viewer.StiFirstDayOfWeek.Monday';
+    case Sunday = 'Stimulsoft.Viewer.StiFirstDayOfWeek.Sunday';
 
-    public const Monday = 'Stimulsoft.Viewer.StiFirstDayOfWeek.Monday';
-
-    public const Sunday = 'Stimulsoft.Viewer.StiFirstDayOfWeek.Sunday';
 }

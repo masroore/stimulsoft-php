@@ -2,13 +2,11 @@
 
 namespace Stimulsoft\Viewer;
 
-class StiContentAlignment
+enum StiContentAlignment: string
 {
-    public const Left = 'Stimulsoft.Viewer.StiContentAlignment.Left';
+    case DefaultValue = 'Stimulsoft.Viewer.StiContentAlignment.Default';
+    case Center = 'Stimulsoft.Viewer.StiContentAlignment.Center';
+    case Left = 'Stimulsoft.Viewer.StiContentAlignment.Left';
+    case Right = 'Stimulsoft.Viewer.StiContentAlignment.Right';
 
-    public const Center = 'Stimulsoft.Viewer.StiContentAlignment.Center';
-
-    public const Right = 'Stimulsoft.Viewer.StiContentAlignment.Right';
-
-    public const DefaultValue = 'Stimulsoft.Viewer.StiContentAlignment.Default';
 }

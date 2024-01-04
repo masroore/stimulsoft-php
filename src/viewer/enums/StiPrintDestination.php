@@ -2,13 +2,10 @@
 
 namespace Stimulsoft\Viewer;
 
-class StiPrintDestination
+enum StiPrintDestination: string
 {
-    public const DefaultValue = 'Stimulsoft.Viewer.StiPrintDestination.Default';
-
-    public const Pdf = 'Stimulsoft.Viewer.StiPrintDestination.Pdf';
-
-    public const Direct = 'Stimulsoft.Viewer.StiPrintDestination.Direct';
-
-    public const WithPreview = 'Stimulsoft.Viewer.StiPrintDestination.WithPreview';
+    case DefaultValue = 'Stimulsoft.Viewer.StiPrintDestination.Default';
+    case Pdf = 'Stimulsoft.Viewer.StiPrintDestination.Pdf';
+    case WithPreview = 'Stimulsoft.Viewer.StiPrintDestination.WithPreview';
+    case Direct = 'Stimulsoft.Viewer.StiPrintDestination.Direct';
 }

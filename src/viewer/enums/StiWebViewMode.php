@@ -2,11 +2,10 @@
 
 namespace Stimulsoft\Viewer;
 
-class StiWebViewMode
+enum StiWebViewMode: string
 {
-    public const SinglePage = 'Stimulsoft.Viewer.StiWebViewMode.SinglePage';
+    case SinglePage = 'Stimulsoft.Viewer.StiWebViewMode.SinglePage';
+    case MultiplePages = 'Stimulsoft.Viewer.StiWebViewMode.MultiplePages';
+    case Continuous = 'Stimulsoft.Viewer.StiWebViewMode.Continuous';
 
-    public const Continuous = 'Stimulsoft.Viewer.StiWebViewMode.Continuous';
-
-    public const MultiplePages = 'Stimulsoft.Viewer.StiWebViewMode.MultiplePages';
 }

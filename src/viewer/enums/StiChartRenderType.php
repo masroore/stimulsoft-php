@@ -2,11 +2,10 @@
 
 namespace Stimulsoft\Viewer;
 
-class StiChartRenderType
+enum StiChartRenderType: string
 {
-    public const Image = 'Stimulsoft.Viewer.StiChartRenderType.Image';
+    case AnimatedVector = 'Stimulsoft.Viewer.StiChartRenderType.AnimatedVector';
+    case Image = 'Stimulsoft.Viewer.StiChartRenderType.Image';
+    case Vector = 'Stimulsoft.Viewer.StiChartRenderType.Vector';
 
-    public const Vector = 'Stimulsoft.Viewer.StiChartRenderType.Vector';
-
-    public const AnimatedVector = 'Stimulsoft.Viewer.StiChartRenderType.AnimatedVector';
 }

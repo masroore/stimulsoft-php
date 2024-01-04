@@ -2,9 +2,9 @@
 
 namespace Stimulsoft\Viewer;
 
-class StiZoomMode
+enum StiZoomMode: string
 {
-    public const PageWidth = 'Stimulsoft.Viewer.StiZoomMode.PageWidth';
+    case PageHeight = 'Stimulsoft.Viewer.StiZoomMode.PageHeight';
+    case PageWidth = 'Stimulsoft.Viewer.StiZoomMode.PageWidth';
 
-    public const PageHeight = 'Stimulsoft.Viewer.StiZoomMode.PageHeight';
 }

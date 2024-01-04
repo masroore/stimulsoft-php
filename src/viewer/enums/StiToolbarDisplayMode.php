@@ -2,9 +2,9 @@
 
 namespace Stimulsoft\Viewer;
 
-class StiToolbarDisplayMode
+enum StiToolbarDisplayMode: string
 {
-    public const Simple = 'Stimulsoft.Viewer.StiToolbarDisplayMode.Simple';
+    case Separated = 'Stimulsoft.Viewer.StiToolbarDisplayMode.Separated';
+    case Simple = 'Stimulsoft.Viewer.StiToolbarDisplayMode.Simple';
 
-    public const Separated = 'Stimulsoft.Viewer.StiToolbarDisplayMode.Separated';
 }

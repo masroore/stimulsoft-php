@@ -2,11 +2,10 @@
 
 namespace Stimulsoft\Viewer;
 
-class StiParametersPanelPosition
+enum StiParametersPanelPosition: string
 {
-    public const Top = 'Stimulsoft.Viewer.StiParametersPanelPosition.Top';
+    case Left = 'Stimulsoft.Viewer.StiParametersPanelPosition.Left';
+    case Top = 'Stimulsoft.Viewer.StiParametersPanelPosition.Top';
+    case FromReport = 'Stimulsoft.Viewer.StiParametersPanelPosition.FromReport';
 
-    public const Left = 'Stimulsoft.Viewer.StiParametersPanelPosition.Left';
-
-    public const FromReport = 'Stimulsoft.Viewer.StiParametersPanelPosition.FromReport';
 }

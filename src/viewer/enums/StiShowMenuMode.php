@@ -2,9 +2,9 @@
 
 namespace Stimulsoft\Viewer;
 
-class StiShowMenuMode
+enum StiShowMenuMode: string
 {
-    public const Click = 'Stimulsoft.Viewer.StiShowMenuMode.Click';
+    case Hover = 'Stimulsoft.Viewer.StiShowMenuMode.Hover';
+    case Click = 'Stimulsoft.Viewer.StiShowMenuMode.Click';
 
-    public const Hover = 'Stimulsoft.Viewer.StiShowMenuMode.Hover';
 }
