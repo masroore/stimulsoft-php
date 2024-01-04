@@ -2,7 +2,7 @@
 
 namespace Stimulsoft\Report;
 
-use Stimulsoft\StiExportFormat;
+use Stimulsoft\Enums\StiExportFormat;
 use Stimulsoft\StiHtmlComponent;
 
 class StiReport extends StiHtmlComponent
@@ -19,13 +19,10 @@ class StiReport extends StiHtmlComponent
     /** The event is invoked after loading data before rendering a report. */
     public $onEndProcessData;
 
-    /** @var StiDictionary Report data dictionary. */
-    public $dictionary;
 
     private $isRenderCalled = false;
     private $isPrintCalled = false;
     private $isExportCalled = false;
-    private $isOpenAfterExport = false;
 
     private $reportString;
     private $reportFile;
@@ -138,12 +135,11 @@ class StiReport extends StiHtmlComponent
 
     /**
      * Exporting the report to the specified format and saving it as a file on the client side.
-     * @param int $format The type of the export. Is equal to one of the values of the StiExportFormat enumeration.
+     * @param string $format The type of the export. Is equal to one of the values of the StiExportFormat enumeration.
      */
-    public function exportDocument($format, $openAfterExport = false)
+    public function exportDocument($format)
     {
         $this->isExportCalled = true;
-        $this->isOpenAfterExport = $openAfterExport;
         $this->exportFormat = $format;
     }
 
@@ -182,19 +178,17 @@ class StiReport extends StiHtmlComponent
         if ($this->onEndProcessData)
             $result .= $this->getEventHtml('onEndProcessData');
 
-        if (!is_null($this->reportFile) && strlen($this->reportFile) > 0)
+        if (strlen($this->reportFile) > 0)
             $result .= "$this->id.loadFile('$this->reportFile');\n";
 
-        else if (!is_null($this->reportString) && strlen($this->reportString) > 0)
+        else if (strlen($this->reportString) > 0)
             $result .= "$this->id.loadPacked('$this->reportString');\n";
 
-        else if (!is_null($this->documentFile) && strlen($this->documentFile) > 0)
+        else if (strlen($this->documentFile) > 0)
             $result .= "$this->id.loadDocumentFile('$this->documentFile');\n";
 
-        else if (!is_null($this->documentString) && strlen($this->documentString) > 0)
+        else if (strlen($this->documentString) > 0)
             $result .= "$this->id.loadPackedDocument('$this->documentString');\n";
-
-        $result .= $this->dictionary->getHtml();
 
         if ($this->onBeforeRender)
             $result .= $this->getBeforeRenderEventHtml();
@@ -221,13 +215,10 @@ class StiReport extends StiHtmlComponent
             $exportMimeType = StiExportFormat::getMimeType($this->exportFormat);
             $exportName = StiExportFormat::getFormatName($this->exportFormat);
 
-            $result .= "report.exportDocumentAsync(function (data) {\n";
-            $result .= $this->isOpenAfterExport
-                ? "var blob = new Blob([new Uint8Array(data)], { type: '$exportMimeType' });
-                   var fileURL = URL.createObjectURL(blob);
-                   window.open(fileURL);\n"
-                : "Stimulsoft.System.StiObject.saveAs(data, '$this->exportFile.$exportFileExt', '$exportMimeType');\n";
-            $result .= "}, Stimulsoft.Report.StiExportFormat.$exportName);\n";
+            $result .= "report.exportDocumentAsync(function (data) {
+                            Stimulsoft.System.StiObject.saveAs(data, '$this->exportFile.$exportFileExt', '$exportMimeType');
+                        }, Stimulsoft.Report.StiExportFormat.$exportName);
+                    ";
         }
 
         if ($this->isRenderCalled) {
@@ -240,7 +231,6 @@ class StiReport extends StiHtmlComponent
 
     public function __construct($id = 'report')
     {
-        $this->id = !is_null($id) && strlen($id) > 0 ? $id : 'report';
-        $this->dictionary = new StiDictionary($this);
+        $this->id = strlen($id) > 0 ? $id : 'report';
     }
 }

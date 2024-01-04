@@ -1,6 +1,6 @@
 <?php
 
-namespace Stimulsoft;
+namespace Stimulsoft\Events;
 
 class StiVariablesEventArgs extends StiEventArgs
 {

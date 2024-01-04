@@ -2,6 +2,9 @@
 
 namespace Stimulsoft;
 
+use Stimulsoft\Enums\StiDataCommand;
+use Stimulsoft\Enums\StiEventType;
+
 class StiRequest extends StiDataRequest
 {
     public $sender;
@@ -14,6 +17,7 @@ class StiRequest extends StiDataRequest
     public $formatName;
     public $settings;
     public $variables;
+    public $parameters;
     public $escapeQueryParameters;
     public $isWizardUsed;
     public $report;
@@ -21,9 +25,7 @@ class StiRequest extends StiDataRequest
 
     protected function checkRequestParams($obj)
     {
-        if (!isset($obj->event) && isset($obj->command) &&
-                ($obj->command == StiDataCommand::TestConnection || $obj->command == StiDataCommand::RetrieveSchema ||
-                $obj->command == StiDataCommand::Execute || $obj->command == StiDataCommand::ExecuteQuery))
+        if (!isset($obj->event) && isset($obj->command) && ($obj->command == StiDataCommand::TestConnection || StiDataCommand::ExecuteQuery))
             $this->event = StiEventType::BeginProcessData;
 
         if (isset($obj->report)) {

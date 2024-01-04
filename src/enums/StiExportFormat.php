@@ -1,6 +1,8 @@
 <?php
 
-namespace Stimulsoft;
+namespace Stimulsoft\Enums;
+
+use ReflectionClass;
 
 class StiExportFormat
 {
@@ -24,7 +26,7 @@ class StiExportFormat
             case StiExportFormat::Pdf:
                 return 'pdf';
 
-            case StiExportFormat::Xps:
+            case StiExportFormat::Xps;
                 return 'xps';
 
             case StiExportFormat::Text:
@@ -68,7 +70,7 @@ class StiExportFormat
             case StiExportFormat::Pdf:
                 return 'application/pdf';
 
-            case StiExportFormat::Xps:
+            case StiExportFormat::Xps;
                 return 'application/vnd.ms-xpsdocument';
 
             case StiExportFormat::Text:
@@ -108,7 +110,7 @@ class StiExportFormat
 
     public static function getFormatName($format)
     {
-        $class = new \ReflectionClass('\Stimulsoft\StiExportFormat');
+        $class = new ReflectionClass('\Stimulsoft\Enums\StiExportFormat');
         $constants = $class->getConstants();
         $names = array_flip($constants);
 

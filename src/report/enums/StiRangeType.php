@@ -1,6 +1,6 @@
 <?php
 
-namespace Stimulsoft\Report;
+namespace Stimulsoft\Report\Enums;
 
 class StiRangeType
 {

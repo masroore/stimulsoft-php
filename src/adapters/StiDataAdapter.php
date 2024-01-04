@@ -2,9 +2,12 @@
 
 namespace Stimulsoft\Adapters;
 
-use Stimulsoft\StiConnectionInfo;
-use Stimulsoft\StiDatabaseType;
+use DateTime;
+use PDO;
+use PDOException;
+use Stimulsoft\Enums\StiDatabaseType;
 use Stimulsoft\StiDataResult;
+use Stimulsoft\StiConnectionInfo;
 use Stimulsoft\StiResult;
 
 class StiDataAdapter
@@ -14,13 +17,13 @@ class StiDataAdapter
 
     protected $driverType = 'Native';
     protected $driverName;
-    protected $connectionString;
-    protected $connectionInfo;
-    protected $connectionLink;
+    protected $info;
+    protected $link;
 
-    protected function getLastErrorResult($message = 'An unknown error has occurred.')
+    protected function getLastErrorResult()
     {
-        $info = $this->connectionLink->errorInfo();
+        $message = 'Unknown';
+        $info = $this->link->errorInfo();
         $code = $info[0];
         if (count($info) >= 3)
             $message = $info[2];
@@ -31,9 +34,9 @@ class StiDataAdapter
     protected function connect()
     {
         try {
-            $this->connectionLink = new \PDO($this->connectionInfo->dsn, $this->connectionInfo->userId, $this->connectionInfo->password);
+            $this->link = new PDO($this->info->dsn, $this->info->userId, $this->info->password);
         }
-        catch (\PDOException $e) {
+        catch (PDOException $e) {
             $code = $e->getCode();
             $message = $e->getMessage();
             return $code == 0 ? StiResult::error($message) : StiResult::error("[$code] $message");
@@ -44,7 +47,7 @@ class StiDataAdapter
 
     protected function disconnect()
     {
-        $this->connectionLink = null;
+        $this->link = null;
     }
 
     public function test()
@@ -56,10 +59,10 @@ class StiDataAdapter
 
     public function parse($connectionString)
     {
-        $this->connectionInfo = new StiConnectionInfo();
-        $this->connectionString = trim($connectionString);
+        $this->info = new StiConnectionInfo();
+        $connectionString = trim($connectionString);
 
-        if (mb_strpos($this->connectionString, "$this->driverName:") !== false) {
+        if (mb_strpos($connectionString, "$this->driverName:") !== false) {
             $this->driverType = 'PDO';
 
             $parameterNames = array(
@@ -67,15 +70,16 @@ class StiDataAdapter
                 'password' => ['pwd', 'password']
             );
 
-            return $this->parseParameters($parameterNames);
+            return $this->parseParameters($connectionString, $parameterNames);
         }
 
         return false;
     }
 
-    protected function parseParameters($parameterNames)
+    protected function parseParameters($connectionString, $parameterNames)
     {
-        $parameters = explode(';', $this->connectionString);
+        $connectionString = trim($connectionString);
+        $parameters = explode(';', $connectionString);
 
         foreach ($parameters as $parameter) {
             $name = '';
@@ -89,7 +93,7 @@ class StiDataAdapter
             $unknown = true;
             foreach ($parameterNames as $key => $names) {
                 if (in_array($name, $names)) {
-                    $this->connectionInfo->{$key} = $value;
+                    $this->info->{$key} = $value;
                     $unknown = false;
                     break;
                 }
@@ -104,11 +108,11 @@ class StiDataAdapter
 
     protected function parseUnknownParameter($parameter, $name, $value)
     {
-        if ($this->driverType == 'PDO' && !is_null($parameter) && mb_strlen($parameter) > 0) {
-            if (mb_strlen($this->connectionInfo->dsn) > 0)
-                $this->connectionInfo->dsn .= ';';
+        if ($this->driverType == 'PDO' && mb_strlen($parameter) > 0) {
+            if (mb_strlen($this->info->dsn) > 0)
+                $this->info->dsn .= ';';
 
-            $this->connectionInfo->dsn .= $parameter;
+            $this->info->dsn .= $parameter;
         }
     }
 
@@ -122,11 +126,8 @@ class StiDataAdapter
         return $value;
     }
 
-    protected function detectType($value)
+    private function detectType($value)
     {
-        if (empty($value))
-            return 'string';
-
         if (preg_match('~[^\x20-\x7E\t\r\n]~', $value) > 0)
             return 'array';
 
@@ -135,10 +136,10 @@ class StiDataAdapter
             return 'int';
         }
 
-        if (\DateTime::createFromFormat('Y-m-d H:i:s', $value) !== false ||
-            \DateTime::createFromFormat('Y-m-d', $value) !== false ||
-            \DateTime::createFromFormat('Y-M-d', $value) !== false ||
-            \DateTime::createFromFormat('H:i:s', $value) !== false)
+        if (DateTime::createFromFormat('Y-m-d H:i:s', $value) !== false ||
+            DateTime::createFromFormat('Y-m-d', $value) !== false ||
+            DateTime::createFromFormat('Y-M-d', $value) !== false ||
+            DateTime::createFromFormat('H:i:s', $value) !== false)
             return 'datetime';
 
         if (is_string($value))
@@ -147,20 +148,7 @@ class StiDataAdapter
         return 'array';
     }
 
-    public function makeQuery($procedure, $parameters)
-    {
-        $paramsString = '';
-        foreach ($parameters as $name => $parameter) {
-            if (strlen($paramsString) > 0)
-                $paramsString .= ', ';
-
-            $paramsString .= "@$name";
-        }
-
-        return $paramsString;
-    }
-
-    public function executeQuery($queryString)
+    public function execute($queryString)
     {
         $result = $this->connect();
         if ($result->success) {
@@ -180,7 +168,7 @@ class StiDataAdapter
 
     protected function executePDO($queryString, $result)
     {
-        $query = $this->connectionLink->query($queryString);
+        $query = $this->link->query($queryString);
         if (!$query)
             return $this->getLastErrorResult();
 
@@ -206,7 +194,7 @@ class StiDataAdapter
 
     protected function executePDOv2($queryString, $result)
     {
-        $query = $this->connectionLink->query($queryString);
+        $query = $this->link->query($queryString);
         if (!$query)
             return $this->getLastErrorResult();
 
@@ -237,80 +225,44 @@ class StiDataAdapter
         return $result;
     }
 
-    public static function getDataAdapter($database)
+    public static function getDataAdapterResult($request)
     {
-        switch ($database) {
+        switch ($request->database) {
             case StiDatabaseType::MySQL:
-                return new StiMySqlAdapter();
+                $dataAdapter = new StiMySqlAdapter();
+                break;
 
             case StiDatabaseType::MSSQL:
-                return new StiMsSqlAdapter();
+                $dataAdapter = new StiMsSqlAdapter();
+                break;
 
             case StiDatabaseType::Firebird:
-                return new StiFirebirdAdapter();
+                $dataAdapter = new StiFirebirdAdapter();
+                break;
 
             case StiDatabaseType::PostgreSQL:
-                return new StiPostgreSqlAdapter();
+                $dataAdapter = new StiPostgreSqlAdapter();
+                break;
 
             case StiDatabaseType::Oracle:
-                return new StiOracleAdapter();
+                $dataAdapter = new StiOracleAdapter();
+                break;
 
             case StiDatabaseType::ODBC:
-                return new StiOdbcAdapter();
-
-            case StiDatabaseType::MongoDB:
-                return new StiMongoDbAdapter();
+                $dataAdapter = new StiOdbcAdapter();
+                break;
         }
 
-        return null;
-    }
-
-    public static function applyQueryParameters($query, $parameters, $escape)
-    {
-        $result = '';
-
-        while (mb_strpos($query, '@') !== false) {
-            $result .= mb_substr($query, 0, mb_strpos($query, '@'));
-            $query = mb_substr($query, mb_strpos($query, '@') + 1);
-
-            $parameterName = '';
-            while (strlen($query) > 0) {
-                $char = mb_substr($query, 0, 1);
-                if (!preg_match('/[a-zA-Z0-9_-]/', $char)) break;
-
-                $parameterName .= $char;
-                $query = mb_substr($query, 1);
-            }
-
-            $replaced = false;
-            foreach ($parameters as $key => $item) {
-                if (strtolower($key) == strtolower($parameterName)) {
-                    switch ($item->typeGroup) {
-                        case 'number':
-                            $result .= floatval($item->value);
-                            break;
-
-                        case 'datetime':
-                            $result .= "'" . $item->value . "'";
-                            break;
-
-                        default:
-                            $result .= "'" . ($escape ? addcslashes($item->value, "\\\"'") : $item->value) . "'";
-                            break;
-                    }
-
-                    $replaced = true;
-                }
-            }
-
-            if (!$replaced) $result .= '@' . $parameterName;
+        if (isset($dataAdapter)) {
+            $dataAdapter->parse($request->connectionString);
+            return StiResult::success(null, $dataAdapter);
         }
 
-        return $result . $query;
+        return StiResult::error("Unknown database type [$request->database]");
     }
 
     public function __construct()
     {
-        $this->connectionInfo = new StiConnectionInfo();
+        $this->info = new StiConnectionInfo();
     }
 }

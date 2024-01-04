@@ -7,17 +7,18 @@ use Stimulsoft\StiResult;
 
 class StiMsSqlAdapter extends StiDataAdapter
 {
-    public $version = '2024.1.2';
+    public $version = '2023.1.1';
     public $checkVersion = true;
 
     protected $driverName = 'sqlsrv';
 
-    protected function getLastErrorResult($message = 'An unknown error has occurred.')
+    protected function getLastErrorResult()
     {
         if ($this->driverType == 'PDO')
-            return parent::getLastErrorResult($message);
+            return parent::getLastErrorResult();
 
         $code = 0;
+        $message = 'Unknown';
 
         if ($this->driverType == 'Microsoft') {
             if (($errors = sqlsrv_errors()) != null) {
@@ -44,28 +45,28 @@ class StiMsSqlAdapter extends StiDataAdapter
                 return StiResult::error('MS SQL driver not found. Please configure your PHP server to work with MS SQL.');
 
             sqlsrv_configure('WarningsReturnAsErrors', 0);
-            $this->connectionLink = sqlsrv_connect(
-                $this->connectionInfo->host,
+            $this->link = sqlsrv_connect(
+                $this->info->host,
                 array(
-                    'UID' => $this->connectionInfo->userId,
-                    'PWD' => $this->connectionInfo->password,
-                    'Database' => $this->connectionInfo->database,
+                    'UID' => $this->info->userId,
+                    'PWD' => $this->info->password,
+                    'Database' => $this->info->database,
                     'LoginTimeout' => 10,
                     'ReturnDatesAsStrings' => true,
-                    'CharacterSet' => $this->connectionInfo->charset
+                    'CharacterSet' => $this->info->charset
                 ));
 
-            if (!$this->connectionLink)
+            if (!$this->link)
                 return $this->getLastErrorResult();
 
             return StiDataResult::success();
         }
 
-        $this->connectionLink = mssql_connect($this->connectionInfo->host, $this->connectionInfo->userId, $this->connectionInfo->password);
-        if (!$this->connectionLink)
+        $this->link = mssql_connect($this->info->host, $this->info->userId, $this->info->password);
+        if (!$this->link)
             return $this->getLastErrorResult();
 
-        if (!mssql_select_db($this->connectionInfo->database, $this->connectionLink))
+        if (!mssql_select_db($this->info->database, $this->link))
             return $this->getLastErrorResult();
 
         return StiResult::success();
@@ -75,13 +76,13 @@ class StiMsSqlAdapter extends StiDataAdapter
     {
         if ($this->driverType == 'PDO')
             parent::disconnect();
-        else if ($this->connectionLink) {
+        else if ($this->link) {
             if ($this->driverType == 'Microsoft')
-                sqlsrv_close($this->connectionLink);
+                sqlsrv_close($this->link);
             else
-                mssql_close($this->connectionLink);
+                mssql_close($this->link);
 
-            $this->connectionLink = null;
+            $this->link = null;
         }
     }
 
@@ -91,7 +92,7 @@ class StiMsSqlAdapter extends StiDataAdapter
             return true;
 
         $this->driverType = function_exists('mssql_connect') ? 'Native' : 'Microsoft';
-        $this->connectionInfo->charset = 'UTF-8';
+        $this->info->charset = 'UTF-8';
 
         $parameterNames = array(
             'host' => ['server', 'data source'],
@@ -101,7 +102,7 @@ class StiMsSqlAdapter extends StiDataAdapter
             'charset' => ['charset']
         );
 
-        return $this->parseParameters($parameterNames);
+        return $this->parseParameters($connectionString, $parameterNames);
     }
 
     private function getStringType($type)
@@ -251,17 +252,11 @@ class StiMsSqlAdapter extends StiDataAdapter
         return $value;
     }
 
-    public function makeQuery($procedure, $parameters)
-    {
-        $paramsString = parent::makeQuery($procedure, $parameters);
-        return "EXEC $procedure $paramsString";
-    }
-
     protected function executeNative($queryString, $result)
     {
         $query = $this->driverType == 'Microsoft'
-            ? sqlsrv_query($this->connectionLink, $queryString)
-            : mssql_query($queryString, $this->connectionLink);
+            ? sqlsrv_query($this->link, $queryString)
+            : mssql_query($queryString, $this->link);
 
         if (!$query)
             return $this->getLastErrorResult();

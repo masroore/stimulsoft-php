@@ -7,7 +7,7 @@ class StiHtmlComponent
     public $id;
     public $isHtmlRendered = false;
 
-    protected function getEventHtml($event, $callback = false, $prevent = false, $process = true)
+    protected function getEventHtml($event, $callback = false, $prevent = false)
     {
         $property = $this->id;
         switch ($this->id) {
@@ -27,8 +27,7 @@ class StiHtmlComponent
         $eventValue = $this->{$event} === true ? '' : 'if (typeof ' . $this->{$event} . ' === "function") ' . $this->{$event} . '(args); ';
         $callbackValue = $callback ? ', callback' : '';
         $preventValue = $prevent ? 'args.preventDefault = true; ' : '';
-        $processValue = $process ? "Stimulsoft.Helper.process(args$callbackValue); " : ($callback ? 'callback(); ' : '');
-        return "$property.$event = function (args$callbackValue) { {$preventValue}{$eventValue}{$processValue}}\n";
+        return "$property.$event = function (args$callbackValue) { {$preventValue}{$eventValue}Stimulsoft.Helper.process(args$callbackValue); }\n";
     }
 
     /** Get the HTML representation of the component. */

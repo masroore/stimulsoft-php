@@ -2,17 +2,17 @@
 
 namespace Stimulsoft\Adapters;
 
-use Stimulsoft\StiConnectionInfo;
 use Stimulsoft\StiDataResult;
 use Stimulsoft\StiResult;
 
 class StiOdbcAdapter extends StiDataAdapter
 {
-    public $version = '2024.1.2';
+    public $version = '2023.1.1';
     public $checkVersion = true;
 
-    protected function getLastErrorResult($message = 'An unknown error has occurred.')
+    protected function getLastErrorResult()
     {
+        $message = 'Unknown';
         $code = odbc_error();
         $error = odbc_errormsg();
         if ($error) $message = $error;
@@ -22,9 +22,9 @@ class StiOdbcAdapter extends StiDataAdapter
 
     protected function connect()
     {
-        $this->connectionLink = odbc_connect($this->connectionInfo->dsn, $this->connectionInfo->userId, $this->connectionInfo->password);
+        $this->link = odbc_connect($this->info->dsn, $this->info->userId, $this->info->password);
 
-        if (!$this->connectionLink)
+        if (!$this->link)
             return $this->getLastErrorResult();
 
         return StiDataResult::success();
@@ -32,23 +32,20 @@ class StiOdbcAdapter extends StiDataAdapter
 
     protected function disconnect()
     {
-        if ($this->connectionLink) {
-            odbc_close($this->connectionLink);
-            $this->connectionLink = null;
+        if ($this->link) {
+            odbc_close($this->link);
+            $this->link = null;
         }
     }
 
     public function parse($connectionString)
     {
-        $this->connectionInfo = new StiConnectionInfo();
-        $this->connectionString = trim($connectionString);
-
         $parameterNames = array(
             'userId' => ['uid', 'user', 'username', 'userid', 'user id'],
             'password' => ['pwd', 'password']
         );
 
-        return $this->parseParameters($parameterNames);
+        return $this->parseParameters($connectionString, $parameterNames);
     }
 
     protected function parseType($meta)
@@ -151,11 +148,11 @@ class StiOdbcAdapter extends StiDataAdapter
         return $value;
     }
 
-    public function executeQuery($queryString)
+    public function execute($queryString)
     {
         $result = $this->connect();
         if ($result->success) {
-            $query = odbc_exec($this->connectionLink, $queryString);
+            $query = odbc_exec($this->link, $queryString);
             if (!$query)
                 return $this->getLastErrorResult();
 

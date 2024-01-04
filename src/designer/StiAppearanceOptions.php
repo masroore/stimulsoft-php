@@ -2,6 +2,12 @@
 
 namespace Stimulsoft\Designer;
 
+use Stimulsoft\Designer\Enums\StiDesignerTheme;
+use Stimulsoft\Designer\Enums\StiFirstDayOfWeek;
+use Stimulsoft\Designer\Enums\StiInterfaceType;
+use Stimulsoft\Designer\Enums\StiPropertiesGridPosition;
+use Stimulsoft\Designer\Enums\StiWizardType;
+use Stimulsoft\Report\Enums\StiReportUnitType;
 use Stimulsoft\StiComponentOptions;
 
 /** A class which controls settings of the designer appearance. */

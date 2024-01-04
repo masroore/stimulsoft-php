@@ -1,6 +1,9 @@
 <?php
 
-namespace Stimulsoft;
+namespace Stimulsoft\Events;
+
+use Stimulsoft\Enums\StiComponentType;
+use Stimulsoft\StiResult;
 
 class StiEventArgs
 {

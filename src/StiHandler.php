@@ -2,10 +2,19 @@
 
 namespace Stimulsoft;
 
+use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
 use Stimulsoft\Adapters\StiDataAdapter;
-use Stimulsoft\Report\StiVariable;
-use Stimulsoft\Report\StiVariableRange;
+use Stimulsoft\Enums\StiComponentType;
+use Stimulsoft\Enums\StiDataCommand;
+use Stimulsoft\Enums\StiEventType;
+use Stimulsoft\Enums\StiExportAction;
+use Stimulsoft\Enums\StiExportFormat;
+use Stimulsoft\Enums\StiPrintAction;
+use Stimulsoft\Events\StiDataEventArgs;
+use Stimulsoft\Events\StiExportEventArgs;
+use Stimulsoft\Events\StiReportEventArgs;
+use Stimulsoft\Events\StiVariablesEventArgs;
 
 class StiHandler extends StiDataHandler
 {
@@ -63,6 +72,50 @@ class StiHandler extends StiDataHandler
         return $result;
     }
 
+    private function applyQueryParameters($query, $parameters, $escape)
+    {
+        $result = '';
+
+        while (mb_strpos($query, '@') !== false) {
+            $result .= mb_substr($query, 0, mb_strpos($query, '@'));
+            $query = mb_substr($query, mb_strpos($query, '@') + 1);
+
+            $parameterName = '';
+            while (strlen($query) > 0) {
+                $char = mb_substr($query, 0, 1);
+                if (!preg_match('/[a-zA-Z0-9_-]/', $char)) break;
+
+                $parameterName .= $char;
+                $query = mb_substr($query, 1);
+            }
+
+            $replaced = false;
+            foreach ($parameters as $key => $item) {
+                if (strtolower($key) == strtolower($parameterName)) {
+                    switch ($item->typeGroup) {
+                        case 'number':
+                            $result .= $item->value;
+                            break;
+
+                        case 'datetime':
+                            $result .= "'" . $item->value . "'";
+                            break;
+
+                        default:
+                            $result .= "'" . ($escape ? addcslashes($item->value, "\\\"'") : $item->value) . "'";
+                            break;
+                    }
+
+                    $replaced = true;
+                }
+            }
+
+            if (!$replaced) $result .= '@' . $parameterName;
+        }
+
+        return $result . $query;
+    }
+
     private function addAddress($param, $settings, $mail)
     {
         $arr = $settings->$param;
@@ -73,7 +126,7 @@ class StiHandler extends StiDataHandler
 
             foreach ($arr as $value) {
                 $name = mb_strpos($value, ' ') > 0 ? mb_substr($value, mb_strpos($value, ' ')) : '';
-                $address = !is_null($name) && strlen($name) > 0 ? mb_substr($value, 0, mb_strpos($value, ' ')) : $value;
+                $address = strlen($name) > 0 ? mb_substr($value, 0, mb_strpos($value, ' ')) : $value;
 
                 if ($param == 'cc') $mail->addCC($address, $name);
                 else $mail->addBCC($address, $name);
@@ -88,9 +141,20 @@ class StiHandler extends StiDataHandler
     {
         $args = new StiDataEventArgs();
         $args->populateVars($request);
-        $args->parameters = $this->getParameters($request);
 
-        return $this->checkEventResult($this->onBeginProcessData, $args);
+        if (isset($request->queryString) && isset($request->parameters)) {
+            $args->parameters = array();
+            foreach ($request->parameters as $item) {
+                $args->parameters[$item->name] = $item;
+                unset($item->name);
+            }
+        }
+
+        $result = $this->checkEventResult($this->onBeginProcessData, $args);
+        if (isset($result->object->queryString) && isset($args->parameters) && count($args->parameters) > 0)
+            $result->object->queryString = $this->applyQueryParameters($result->object->queryString, $args->parameters, $request->escapeQueryParameters);
+
+        return $result;
     }
 
     private function invokeEndProcessData($request, $result)
@@ -112,7 +176,6 @@ class StiHandler extends StiDataHandler
             foreach ($request->variables as $item) {
                 $request->variables[$item->name] = $item;
                 $variableObject = new StiVariable();
-                $variableObject->name = $item->name;
                 $variableObject->value = $item->value;
                 $variableObject->type = $item->type;
 
@@ -284,7 +347,7 @@ class StiHandler extends StiDataHandler
 
             $mail->Send();
         }
-        catch (\Exception $e) {
+        catch (Exception $e) {
             $error = strip_tags($e->getMessage());
         }
 
@@ -301,21 +364,25 @@ class StiHandler extends StiDataHandler
         if ($result->success) {
             switch ($request->event) {
                 case StiEventType::BeginProcessData:
-                    $dataAdapter = StiDataAdapter::getDataAdapter($request->database);
-                    if ($dataAdapter == null) {
-                        $result = StiResult::error("Unknown database type [$request->database]");
-                        break;
-                    }
-
                     $result = $this->invokeBeginProcessData($request);
                     if (!$result->success) break;
-
                     $request->connectionString = $result->object->connectionString;
                     $request->queryString = $result->object->queryString;
-                    $request->parameters = $result->object->parameters;
-
-                    $result = $this->getDataAdapterResult($dataAdapter, $request);
+                    $result = StiDataAdapter::getDataAdapterResult($request);
                     if (!$result->success) break;
+
+                    $dataAdapter = $result->object;
+
+                    /** @var StiDataAdapter $dataAdapter */
+                    switch ($request->command) {
+                        case StiDataCommand::TestConnection:
+                            $result = $dataAdapter->test();
+                            break;
+
+                        case StiDataCommand::ExecuteQuery:
+                            $result = $dataAdapter->execute($request->queryString);
+                            break;
+                    }
 
                     /** @var StiDataResult $result */
                     $result = $this->invokeEndProcessData($request, $result);
@@ -388,22 +455,18 @@ class StiHandler extends StiDataHandler
     /** Get the HTML representation of the component. */
     public function getHtml()
     {
-        $csrf_token = function_exists('csrf_token') ? csrf_token() : null;
-        $databases = json_encode(StiDatabaseType::getTypes());
-
         $result = /** @lang JavaScript */
             "StiHelper.prototype.process = function (args, callback) {
                 if (args) {
-                    if (args.event === 'BeginProcessData' || args.event === 'EndProcessData') {
-                        let databases = $databases;
-                        if (!databases.includes(args.database))
-                            return null;
-
-                        args.preventDefault = true;
-                    }
-
                     if (callback)
-                        args.async = true;
+                        args.preventDefault = true;
+
+                    if (args.event === 'BeginProcessData' || args.event === 'EndProcessData') {
+                        if (args.database === 'XML' || args.database === 'JSON' || args.database === 'Excel')
+                            return callback ? callback(null) : null;
+                        if (args.database === 'Data from DataSet, DataTables')
+                            return callback ? callback(args) : null;
+                    }
 
                     let command = {};
                     for (let p in args) {
@@ -416,13 +479,14 @@ class StiHandler extends StiDataHandler
                         else command[p] = args[p];
                     }
 
-                    let sendText = Stimulsoft.Report.Dictionary.StiSqlAdapterService.encodeCommand(command);
-                    let handlerCallback = function (args) {
-                        if (!Stimulsoft.System.StiString.isNullOrEmpty(args.notice))
-                            Stimulsoft.System.StiError.showError(args.notice, true, args.success);
-                        if (callback) callback(args);
+                    let sendText = Stimulsoft.Report.Dictionary.StiSqlAdapterService.getStringCommand(command);
+                    if (!callback) callback = function (args) {
+                        if (!args.success || !Stimulsoft.System.StiString.isNullOrEmpty(args.notice)) {
+                            let message = Stimulsoft.System.StiString.isNullOrEmpty(args.notice) ? 'There was some error' : args.notice;
+                            Stimulsoft.System.StiError.showError(message, true, args.success);
+                        }
                     }
-                    Stimulsoft.Helper.send(sendText, handlerCallback);
+                    Stimulsoft.Helper.send(sendText, callback);
                 }
             }
 
@@ -432,8 +496,7 @@ class StiHandler extends StiDataHandler
                     request.open('post', this.url, true);
                     request.setRequestHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
                     request.setRequestHeader('Cache-Control', 'max-age=0');
-                    request.setRequestHeader('Pragma', 'no-cache');" . ($csrf_token ? "
-                    request.setRequestHeader('X-CSRF-TOKEN', '$csrf_token');" : '') . "
+                    request.setRequestHeader('Pragma', 'no-cache');
                     request.timeout = this.timeout * 1000;
                     request.onload = function () {
                         if (request.status === 200) {
@@ -441,7 +504,7 @@ class StiHandler extends StiDataHandler
                             request.abort();
 
                             try {
-                                let args = Stimulsoft.Report.Dictionary.StiSqlAdapterService.decodeCommandResult(responseText);
+                                let args = JSON.parse(responseText);
                                 if (args.report) {
                                     let json = args.report;
                                     args.report = new Stimulsoft.Report.StiReport();

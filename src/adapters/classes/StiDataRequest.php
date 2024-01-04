@@ -2,13 +2,14 @@
 
 namespace Stimulsoft;
 
+use Stimulsoft\Enums\StiDataCommand;
+
 class StiDataRequest
 {
     public $encode = false;
     public $command;
     public $connectionString;
     public $queryString;
-    public $parameters;
     public $database;
     public $dataSource;
     public $connection;
@@ -28,7 +29,7 @@ class StiDataRequest
     {
         $input = file_get_contents('php://input');
 
-        if (!is_null($input) && strlen($input) > 0 && mb_substr($input, 0, 1) != '{') {
+        if (strlen($input) > 0 && mb_substr($input, 0, 1) != '{') {
             $input = base64_decode(str_rot13($input));
             $this->encode = true;
         }
@@ -52,13 +53,12 @@ class StiDataRequest
         if (isset($obj->command))
             $this->command = $obj->command;
 
-        $reflectionClass = new \ReflectionClass('\Stimulsoft\StiDataCommand');
-        $commands = $reflectionClass->getConstants();
-        $values = array_values($commands);
-
-        if (in_array($this->command, $values))
+        if ($this->command == StiDataCommand::GetSupportedAdapters)
             return StiResult::success(null, $this);
 
-        return StiResult::error('Unknown command [' . $this->command . ']');
+        if ($this->command != StiDataCommand::TestConnection && $this->command != StiDataCommand::ExecuteQuery)
+            return StiResult::error('Unknown command [' . $this->command . ']');
+
+        return StiResult::success(null, $this);
     }
 }
