@@ -2,11 +2,10 @@
 
 namespace Stimulsoft;
 
-class StiComponentType
+enum StiComponentType: string
 {
-    public const Report = 'Report';
+    case Designer = 'Designer';
+    case Report = 'Report';
+    case Viewer = 'Viewer';
 
-    public const Viewer = 'Viewer';
-
-    public const Designer = 'Designer';
 }

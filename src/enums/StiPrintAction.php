@@ -2,11 +2,10 @@
 
 namespace Stimulsoft;
 
-class StiPrintAction
+enum StiPrintAction: string
 {
-    public const PrintPdf = 'PrintPdf';
+    case PrintPdf = 'PrintPdf';
+    case PrintWithPreview = 'PrintWithPreview';
+    case PrintWithoutPreview = 'PrintWithoutPreview';
 
-    public const PrintWithoutPreview = 'PrintWithoutPreview';
-
-    public const PrintWithPreview = 'PrintWithPreview';
 }

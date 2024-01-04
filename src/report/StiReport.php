@@ -19,8 +19,7 @@ class StiReport extends StiHtmlComponent
     /** The event is invoked after loading data before rendering a report. */
     public $onEndProcessData;
 
-    /** @var StiDictionary Report data dictionary. */
-    public $dictionary;
+    public ?StiDictionary $dictionary = null;
 
     private $isRenderCalled = false;
 
@@ -46,7 +45,7 @@ class StiReport extends StiHtmlComponent
 
     private $exportFile;
 
-    private function clearReport()
+    private function clearReport(): void
     {
         $this->reportString = null;
         $this->reportFile = null;
@@ -59,9 +58,9 @@ class StiReport extends StiHtmlComponent
      * Loading a report template from a file or URL address.
      *
      * @param  string  $filePath the path to the file or the URL of the report template
-     * @param  bool  $load     loading a report file on the server side
+     * @param  bool  $load loading a report file on the server side
      */
-    public function loadFile($filePath, $load = false)
+    public function loadFile(string $filePath, bool $load = false): void
     {
         $this->clearReport();
         $this->exportFile = pathinfo($filePath, \PATHINFO_FILENAME);
@@ -79,10 +78,10 @@ class StiReport extends StiHtmlComponent
     /**
      * Loading a report template from an XML or JSON string and send it as a packed string in Base64 format.
      *
-     * @param  string  $data     report template in XML or JSON format
+     * @param  string  $data report template in XML or JSON format
      * @param  string  $fileName the name of the report file to be used for saving and exporting
      */
-    public function load($data, $fileName = 'Report')
+    public function load(string $data, string $fileName = 'Report'): void
     {
         $this->clearReport();
         $this->exportFile = $fileName;
@@ -92,7 +91,7 @@ class StiReport extends StiHtmlComponent
     /**
      * Loading a report template from a packed string in Base64 format.
      *
-     * @param  string  $data     report template as a packed string in Base64 format
+     * @param  string  $data report template as a packed string in Base64 format
      * @param  string  $fileName the name of the report file to be used for saving and exporting
      */
     public function loadPacked($data, $fileName = 'Report')
@@ -106,9 +105,9 @@ class StiReport extends StiHtmlComponent
      * Load a rendered report from a file or URL address.
      *
      * @param  string  $filePath the path to the file or the URL of the rendered report
-     * @param  bool  $load     loading a report file on the server side
+     * @param  bool  $load loading a report file on the server side
      */
-    public function loadDocumentFile($filePath, $load = false)
+    public function loadDocumentFile(string $filePath, bool $load = false): void
     {
         $this->clearReport();
         $this->exportFile = pathinfo($filePath, \PATHINFO_FILENAME);
@@ -126,10 +125,10 @@ class StiReport extends StiHtmlComponent
     /**
      * Load a rendered report from an XML or JSON string and send it as a packed string in Base64 format.
      *
-     * @param  string  $data     rendered report in XML or JSON format
+     * @param  string  $data rendered report in XML or JSON format
      * @param  string  $fileName the name of the report file to be used for saving and exporting
      */
-    public function loadDocument($data, $fileName = 'Report')
+    public function loadDocument(string $data, string $fileName = 'Report'): void
     {
         $this->clearReport();
         $this->exportFile = $fileName;
@@ -139,10 +138,10 @@ class StiReport extends StiHtmlComponent
     /**
      * Loading a rendered report from a packed string in Base64 format.
      *
-     * @param  string  $data     rendered report as a packed string in Base64 format
+     * @param  string  $data rendered report as a packed string in Base64 format
      * @param  string  $fileName the name of the report file to be used for saving and exporting
      */
-    public function loadPackedDocument($data, $fileName = 'Report')
+    public function loadPackedDocument(string $data, string $fileName = 'Report'): void
     {
         $this->clearReport();
         $this->exportFile = $fileName;
@@ -154,7 +153,7 @@ class StiReport extends StiHtmlComponent
      *
      * @param  int  $format The type of the export. Is equal to one of the values of the StiExportFormat enumeration.
      */
-    public function exportDocument($format, $openAfterExport = false)
+    public function exportDocument(int $format, bool $openAfterExport = false): void
     {
         $this->isExportCalled = true;
         $this->isOpenAfterExport = $openAfterExport;
@@ -162,20 +161,20 @@ class StiReport extends StiHtmlComponent
     }
 
     /** Building a report and calling a JavaScript callback function, if it is set. */
-    public function render($callback = null)
+    public function render($callback = null): void
     {
         $this->isRenderCalled = true;
         $this->renderCallback = $callback;
     }
 
     /** Printing the rendered report. The browser print dialog will be called. */
-    public function printReport($pagesRange = null)
+    public function printReport(?string $pagesRange = null): void
     {
         $this->isPrintCalled = true;
         $this->pagesRange = $pagesRange;
     }
 
-    private function getBeforeRenderEventHtml()
+    private function getBeforeRenderEventHtml(): string
     {
         $function = $this->onBeforeRender === true ? 'onBeforeRender' : $this->onBeforeRender;
         $args = "{ event: 'BeforeRender', sender: 'Report', report: $this->id }";

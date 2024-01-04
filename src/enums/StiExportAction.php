@@ -2,11 +2,10 @@
 
 namespace Stimulsoft;
 
-class StiExportAction
+enum StiExportAction: int
 {
-    public const ExportReport = 1;
+    case PrintReport = 3;
+    case ExportReport = 1;
+    case SendEmail = 2;
 
-    public const SendEmail = 2;
-
-    public const PrintReport = 3;
 }

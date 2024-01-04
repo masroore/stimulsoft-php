@@ -2,11 +2,10 @@
 
 namespace Stimulsoft\Report;
 
-class StiRangeType
+enum StiRangeType: string
 {
-    public const All = 'Stimulsoft.Report.StiRangeType.All';
+    case All = 'Stimulsoft.Report.StiRangeType.All';
+    case Pages = 'Stimulsoft.Report.StiRangeType.Pages';
+    case CurrentPage = 'Stimulsoft.Report.StiRangeType.CurrentPage';
 
-    public const CurrentPage = 'Stimulsoft.Report.StiRangeType.CurrentPage';
-
-    public const Pages = 'Stimulsoft.Report.StiRangeType.Pages';
 }

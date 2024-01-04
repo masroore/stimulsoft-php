@@ -37,7 +37,7 @@ class StiRequest extends StiDataRequest
         if (! isset($obj->event) && isset($obj->command)
                 && ($obj->command == StiDataCommand::TestConnection || $obj->command == StiDataCommand::RetrieveSchema
                 || $obj->command == StiDataCommand::Execute || $obj->command == StiDataCommand::ExecuteQuery)) {
-            $this->event = StiEventType::BeginProcessData;
+            $this->event = StiEventType::BeginProcessData->value;
         }
 
         if (isset($obj->report)) {

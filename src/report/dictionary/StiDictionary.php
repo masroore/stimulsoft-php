@@ -6,12 +6,12 @@ use Stimulsoft\StiHtmlComponent;
 
 class StiDictionary extends StiHtmlComponent
 {
-    public $report;
+    public StiReport $report;
 
-    public $variables;
+    public array $variables;
 
     /** Get the HTML representation of the component. */
-    public function getHtml()
+    public function getHtml(): string
     {
         $result = '';
 

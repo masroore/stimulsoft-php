@@ -7,16 +7,16 @@ use Stimulsoft\StiHtmlComponent;
 class StiVariable extends StiHtmlComponent
 {
     /** @var string The name of the variable. */
-    public $name;
+    public string $name;
 
-    /** @var StiVariableType The type of the variable. Is equal to one of the values of the StiVariableType enumeration. */
-    public $type;
+    /** @var ?StiVariableType The type of the variable. Is equal to one of the values of the StiVariableType enumeration. */
+    public string $type;
 
     /** @var object The value of the variable. The type of object depends on the type of variable. */
-    public $value;
+    public string $value;
 
     /** Get the HTML representation of the component. */
-    public function getHtml()
+    public function getHtml(): string
     {
         $result =
             "let $this->id = new Stimulsoft.Report.Dictionary.StiVariable".
@@ -27,7 +27,7 @@ class StiVariable extends StiHtmlComponent
         return $result;
     }
 
-    public function __construct($name = '', $type = 'String', $value = '')
+    public function __construct(string $name = '', string $type = 'String', string $value = '')
     {
         $this->name = $name !== null && \strlen($name) > 0 ? $name : 'variable';
         $this->type = $type;

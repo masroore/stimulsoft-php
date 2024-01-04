@@ -2,25 +2,17 @@
 
 namespace Stimulsoft;
 
-class StiEventType
+enum StiEventType: string
 {
-    public const PrepareVariables = 'PrepareVariables';
+    case BeginExportReport = 'BeginExportReport';
+    case OpenReport = 'OpenReport';
+    case PrintReport = 'PrintReport';
+    case EmailReport = 'EmailReport';
+    case PrepareVariables = 'PrepareVariables';
+    case SaveAsReport = 'SaveAsReport';
+    case EndExportReport = 'EndExportReport';
+    case CreateReport = 'CreateReport';
+    case SaveReport = 'SaveReport';
+    case BeginProcessData = 'BeginProcessData';
 
-    public const BeginProcessData = 'BeginProcessData';
-
-    public const CreateReport = 'CreateReport';
-
-    public const OpenReport = 'OpenReport';
-
-    public const SaveReport = 'SaveReport';
-
-    public const SaveAsReport = 'SaveAsReport';
-
-    public const PrintReport = 'PrintReport';
-
-    public const BeginExportReport = 'BeginExportReport';
-
-    public const EndExportReport = 'EndExportReport';
-
-    public const EmailReport = 'EmailReport';
 }

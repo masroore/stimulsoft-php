@@ -32,90 +32,42 @@ class StiExportFormat
 
     public static function getFileExtension($format)
     {
-        switch ($format) {
-            case self::Pdf:
-                return 'pdf';
+        return match ($format) {
+            self::Pdf => 'pdf',
+            self::Xps => 'xps',
+            self::Text => 'txt',
+            self::Excel2007 => 'xlsx',
+            self::Word2007 => 'docx',
+            self::Csv => 'csv',
+            self::ImageSvg => 'svg',
+            self::Html, self::Html5 => 'html',
+            self::Ods => 'ods',
+            self::Odt => 'odt',
+            self::Ppt2007 => 'pptx',
+            self::Document => 'mdc',
+            default => strtolower($format),
+        };
 
-            case self::Xps:
-                return 'xps';
-
-            case self::Text:
-                return 'txt';
-
-            case self::Excel2007:
-                return 'xlsx';
-
-            case self::Word2007:
-                return 'docx';
-
-            case self::Csv:
-                return 'csv';
-
-            case self::ImageSvg:
-                return 'svg';
-
-            case self::Html:
-            case self::Html5:
-                return 'html';
-
-            case self::Ods:
-                return 'ods';
-
-            case self::Odt:
-                return 'odt';
-
-            case self::Ppt2007:
-                return 'pptx';
-
-            case self::Document:
-                return 'mdc';
-        }
-
-        return strtolower($format);
     }
 
     public static function getMimeType($format)
     {
-        switch ($format) {
-            case self::Pdf:
-                return 'application/pdf';
+        return match ($format) {
+            self::Pdf => 'application/pdf',
+            self::Xps => 'application/vnd.ms-xpsdocument',
+            self::Text => 'text/plain',
+            self::Excel2007 => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            self::Word2007 => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            self::Csv => 'text/csv',
+            self::ImageSvg => 'image/svg+xml',
+            self::Html, self::Html5 => 'text/html',
+            self::Ods => 'application/vnd.oasis.opendocument.spreadsheet',
+            self::Odt => 'application/vnd.oasis.opendocument.text',
+            self::Ppt2007 => 'application/vnd.ms-powerpoint',
+            self::Document => 'text/xml',
+            default => 'text/plain',
+        };
 
-            case self::Xps:
-                return 'application/vnd.ms-xpsdocument';
-
-            case self::Text:
-                return 'text/plain';
-
-            case self::Excel2007:
-                return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-
-            case self::Word2007:
-                return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-
-            case self::Csv:
-                return 'text/csv';
-
-            case self::ImageSvg:
-                return 'image/svg+xml';
-
-            case self::Html:
-            case self::Html5:
-                return 'text/html';
-
-            case self::Ods:
-                return 'application/vnd.oasis.opendocument.spreadsheet';
-
-            case self::Odt:
-                return 'application/vnd.oasis.opendocument.text';
-
-            case self::Ppt2007:
-                return 'application/vnd.ms-powerpoint';
-
-            case self::Document:
-                return 'text/xml';
-        }
-
-        return 'text/plain';
     }
 
     public static function getFormatName($format)

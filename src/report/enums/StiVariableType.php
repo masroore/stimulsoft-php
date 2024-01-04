@@ -2,109 +2,59 @@
 
 namespace Stimulsoft\Report;
 
-class StiVariableType
+enum StiVariableType: string
 {
-    public const String = 'String';
+    case ByteRange = 'ByteRange';
+    case String = 'String';
+    case Guid = 'Guid';
+    case Int16 = 'Int16';
+    case Image = 'Image';
+    case DateTime = 'DateTime';
+    case Decimal = 'Decimal';
+    case DoubleList = 'DoubleList';
+    case FloatRange = 'FloatRange';
+    case ShortList = 'ShortList';
+    case ByteArray = 'Byte[]';
+    case GuidList = 'GuidList';
+    case Boolean = 'Boolean';
+    case Short = 'Short';
+    case ULong = 'ULong';
+    case ShortRange = 'ShortRange';
+    case BoolList = 'BoolList';
+    case Double = 'Double';
+    case TimeSpanRange = 'TimeSpanRange';
+    case StringRange = 'StringRange';
+    case Byte = 'Byte';
+    case Long = 'Long';
+    case Object = 'Object';
+    case UInt16 = 'UInt16';
+    case GuidRange = 'GuidRange';
+    case CharRange = 'CharRange';
+    case DecimalList = 'DecimalList';
+    case TimeSpanList = 'TimeSpanList';
+    case SByte = 'SByte';
+    case Int = 'Int';
+    case TimeSpan = 'TimeSpan';
+    case CharList = 'CharList';
+    case LongRange = 'LongRange';
+    case Char = 'Char';
+    case Int32 = 'Int32';
+    case DateTimeList = 'DateTimeList';
+    case DateTimeRange = 'DateTimeRange';
+    case UInt64 = 'UInt64';
+    case ByteList = 'ByteList';
+    case StringList = 'StringList';
+    case IntRange = 'IntRange';
+    case UShort = 'UShort';
+    case DateTimeOffset = 'DateTimeOffset';
+    case LongList = 'LongList';
+    case FloatList = 'FloatList';
+    case IntList = 'IntList';
+    case DoubleRange = 'DoubleRange';
+    case Int64 = 'Int64';
+    case Single = 'Single';
+    case DecimalRange = 'DecimalRange';
+    case UInt = 'UInt';
+    case UInt32 = 'UInt32';
 
-    public const Boolean = 'Boolean';
-
-    public const Byte = 'Byte';
-
-    public const ByteArray = 'Byte[]';
-
-    public const Char = 'Char';
-
-    public const DateTime = 'DateTime';
-
-    public const DateTimeOffset = 'DateTimeOffset';
-
-    public const TimeSpan = 'TimeSpan';
-
-    public const Decimal = 'Decimal';
-
-    public const Double = 'Double';
-
-    public const Guid = 'Guid';
-
-    public const Int = 'Int';
-
-    public const Int16 = 'Int16';
-
-    public const Short = 'Short';
-
-    public const Int32 = 'Int32';
-
-    public const Int64 = 'Int64';
-
-    public const Long = 'Long';
-
-    public const Object = 'Object';
-
-    public const SByte = 'SByte';
-
-    public const Single = 'Single';
-
-    public const UInt16 = 'UInt16';
-
-    public const UShort = 'UShort';
-
-    public const UInt = 'UInt';
-
-    public const UInt32 = 'UInt32';
-
-    public const UInt64 = 'UInt64';
-
-    public const ULong = 'ULong';
-
-    public const Image = 'Image';
-
-    public const ByteRange = 'ByteRange';
-
-    public const CharRange = 'CharRange';
-
-    public const DateTimeRange = 'DateTimeRange';
-
-    public const DecimalRange = 'DecimalRange';
-
-    public const DoubleRange = 'DoubleRange';
-
-    public const FloatRange = 'FloatRange';
-
-    public const GuidRange = 'GuidRange';
-
-    public const IntRange = 'IntRange';
-
-    public const LongRange = 'LongRange';
-
-    public const ShortRange = 'ShortRange';
-
-    public const StringRange = 'StringRange';
-
-    public const TimeSpanRange = 'TimeSpanRange';
-
-    public const BoolList = 'BoolList';
-
-    public const ByteList = 'ByteList';
-
-    public const CharList = 'CharList';
-
-    public const DateTimeList = 'DateTimeList';
-
-    public const DecimalList = 'DecimalList';
-
-    public const DoubleList = 'DoubleList';
-
-    public const FloatList = 'FloatList';
-
-    public const GuidList = 'GuidList';
-
-    public const IntList = 'IntList';
-
-    public const LongList = 'LongList';
-
-    public const ShortList = 'ShortList';
-
-    public const StringList = 'StringList';
-
-    public const TimeSpanList = 'TimeSpanList';
 }

@@ -64,7 +64,7 @@ class StiHandler extends StiDataHandler
     private function checkEventResult($event, $args)
     {
         if (isset($args) && $args->sender == null) {
-            $args->sender = StiComponentType::Report;
+            $args->sender = StiComponentType::Report->value;
         }
         if (isset($event)) {
             $result = $event($args);
@@ -222,9 +222,9 @@ class StiHandler extends StiDataHandler
         $args = new StiExportEventArgs();
         $args->populateVars($request);
 
-        $args->action = $args->action == null ? StiExportAction::PrintReport : $args->action;
-        $args->format = $args->printAction == StiPrintAction::PrintPdf ? StiExportFormat::Pdf : StiExportFormat::Html;
-        $args->formatName = $args->printAction == StiPrintAction::PrintPdf ? 'Pdf' : 'Html';
+        $args->action = $args->action == null ? StiExportAction::PrintReport->value : $args->action;
+        $args->format = $args->printAction == StiPrintAction::PrintPdf->value ? StiExportFormat::Pdf : StiExportFormat::Html;
+        $args->formatName = $args->printAction == StiPrintAction::PrintPdf->value ? 'Pdf' : 'Html';
 
         return $this->checkEventResult($this->onPrintReport, $args);
     }
@@ -246,7 +246,7 @@ class StiHandler extends StiDataHandler
     {
         $args = new StiExportEventArgs();
         $args->populateVars($request);
-        $args->action = $args->action == null ? StiExportAction::ExportReport : $args->action;
+        $args->action = $args->action == null ? StiExportAction::ExportReport->value : $args->action;
         $args->fileExtension = StiExportFormat::getFileExtension($request->format);
 
         return $this->checkEventResult($this->onEndExportReport, $args);
@@ -336,7 +336,7 @@ class StiHandler extends StiDataHandler
         $result = $request->parse();
         if ($result->success) {
             switch ($request->event) {
-                case StiEventType::BeginProcessData:
+                case StiEventType::BeginProcessData->value:
                     $dataAdapter = StiDataAdapter::getDataAdapter($request->database);
                     if ($dataAdapter == null) {
                         $result = StiResult::error("Unknown database type [$request->database]");
@@ -373,39 +373,39 @@ class StiHandler extends StiDataHandler
                     }
                     break;
 
-                case StiEventType::PrepareVariables:
+                case StiEventType::PrepareVariables->value:
                     $result = $this->invokePrepareVariables($request);
                     break;
 
-                case StiEventType::CreateReport:
+                case StiEventType::CreateReport->value:
                     $result = $this->invokeCreateReport($request);
                     break;
 
-                case StiEventType::OpenReport:
+                case StiEventType::OpenReport->value:
                     $result = $this->invokeOpenReport($request);
                     break;
 
-                case StiEventType::SaveReport:
+                case StiEventType::SaveReport->value:
                     $result = $this->invokeSaveReport($request);
                     break;
 
-                case StiEventType::SaveAsReport:
+                case StiEventType::SaveAsReport->value:
                     $result = $this->invokeSaveAsReport($request);
                     break;
 
-                case StiEventType::PrintReport:
+                case StiEventType::PrintReport->value:
                     $result = $this->invokePrintReport($request);
                     break;
 
-                case StiEventType::BeginExportReport:
+                case StiEventType::BeginExportReport->value:
                     $result = $this->invokeBeginExportReport($request);
                     break;
 
-                case StiEventType::EndExportReport:
+                case StiEventType::EndExportReport->value:
                     $result = $this->invokeEndExportReport($request);
                     break;
 
-                case StiEventType::EmailReport:
+                case StiEventType::EmailReport->value:
                     $result = $this->invokeEmailReport($request);
                     break;
 
@@ -416,7 +416,7 @@ class StiHandler extends StiDataHandler
         }
 
         $result->handlerVersion = $this->version;
-        if ($request->event != StiEventType::BeginProcessData) {
+        if ($request->event != StiEventType::BeginProcessData->value) {
             unset($result->adapterVersion);
             unset($result->checkVersion);
         }

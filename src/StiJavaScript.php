@@ -39,11 +39,11 @@ class StiJavaScript
             $scripts[] = "stimulsoft.dashboards.$extension";
         }
 
-        if ($this->componentType == StiComponentType::Viewer || $this->componentType == StiComponentType::Designer) {
+        if ($this->componentType == StiComponentType::Viewer->value || $this->componentType == StiComponentType::Designer->value) {
             $scripts[] = "stimulsoft.viewer.$extension";
         }
 
-        if ($this->componentType == StiComponentType::Designer) {
+        if ($this->componentType == StiComponentType::Designer->value) {
             $scripts[] = "stimulsoft.designer.$extension";
 
             if ($this->options->blocklyEditor) {
