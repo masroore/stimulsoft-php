@@ -2,30 +2,32 @@
 
 namespace Stimulsoft;
 
-use ReflectionClass;
 use Stimulsoft\Adapters\StiDataAdapter;
-use Stimulsoft\Enums\StiDataCommand;
+use Stimulsoft\Adapters\StiMongoDbAdapter;
 
 class StiDataHandler
 {
-    public $version = '2023.1.1';
+    public $version = '2024.1.2';
 
-    private function stiErrorHandler($errNo, $errStr, $errFile, $errLine)
+    public function stiErrorHandler($errNo, $errStr, $errFile, $errLine)
     {
         $result = StiResult::error("[$errNo] $errStr ($errFile, Line $errLine)");
+        $result->handlerVersion = $this->version;
         StiResponse::json($result);
+        exit();
     }
 
-    private function stiShutdownFunction()
+    public function stiShutdownFunction()
     {
         $err = error_get_last();
         if ($err != null && (($err['type'] & E_COMPILE_ERROR) || ($err['type'] & E_ERROR) || ($err['type'] & E_CORE_ERROR) || ($err['type'] & E_RECOVERABLE_ERROR))) {
             $result = StiResult::error("[{$err['type']}] {$err['message']} ({$err['file']}, Line {$err['line']})");
             StiResponse::json($result);
+            exit();
         }
     }
 
-    private function registerErrorHandlers()
+    public function registerErrorHandlers()
     {
         set_error_handler(array($this, 'stiErrorHandler'));
         register_shutdown_function(array($this, 'stiShutdownFunction'));
@@ -39,24 +41,24 @@ class StiDataHandler
         $result = $request->parse();
         if ($result->success) {
             if ($result->object->command == StiDataCommand::GetSupportedAdapters) {
-                $reflectionClass = new ReflectionClass('\Stimulsoft\Enums\StiDatabaseType');
-                $databases = $reflectionClass->getConstants();
+                $databases = StiDatabaseType::getTypes();
                 $result = array(
                     'success' => true,
-                    'types' => array_values($databases)
+                    'types' => $databases
                 );
             }
             else {
-                $result = StiDataAdapter::getDataAdapterResult($request);
+                $dataAdapter = StiDataAdapter::getDataAdapter($request->database);
+                if ($dataAdapter == null)
+                    $result = StiResult::error("Unknown database type [$request->database]");
+                else {
+                    $request->parameters = $this->getParameters($request);
+                    $result = $this->getDataAdapterResult($dataAdapter, $request);
+                    $result->adapterVersion = $dataAdapter->version;
+                    $result->checkVersion = $dataAdapter->checkVersion;
+                }
 
-                /** @var StiDataAdapter $dataAdapter */
-                $dataAdapter = $result->object;
-                $result = $request->command == StiDataCommand::TestConnection
-                    ? $dataAdapter->test()
-                    : $dataAdapter->execute($request->queryString);
                 $result->handlerVersion = $this->version;
-                $result->adapterVersion = $dataAdapter->version;
-                $result->checkVersion = $dataAdapter->checkVersion;
             }
         }
 
@@ -64,6 +66,48 @@ class StiDataHandler
             StiResponse::json($result, $request->encode);
 
         return $result;
+    }
+
+    protected function getParameters($request)
+    {
+        $parameters = array();
+        if (isset($request->queryString) && isset($request->parameters)) {
+            foreach ($request->parameters as $item) {
+                $name = mb_strpos($item->name, '@') === 0 || mb_strpos($item->name, ':') === 0 ? mb_substr($item->name, 1) : $item->name;
+                $parameters[$name] = $item;
+                unset($item->name);
+            }
+        }
+
+        return $parameters;
+    }
+
+    protected function getDataAdapterResult($dataAdapter, $request)
+    {
+        $dataAdapter->parse($request->connectionString);
+
+        if ($request->command == StiDataCommand::TestConnection)
+            return $dataAdapter->test();
+
+        if ($request->command == StiDataCommand::RetrieveSchema)
+            return $dataAdapter->executeQuery($request->dataSource);
+
+        if ($request->command == StiDataCommand::Execute || $request->command == StiDataCommand::ExecuteQuery) {
+            if ($dataAdapter instanceof StiMongoDbAdapter)
+                $request->queryString = $request->dataSource;
+
+            if ($request->command == StiDataCommand::Execute)
+                $request->queryString = $dataAdapter->makeQuery($request->queryString, $request->parameters);
+
+            if (count($request->parameters) > 0) {
+                $escapeQueryParameters = isset($request->escapeQueryParameters) ? $request->escapeQueryParameters : true;
+                $request->queryString = StiDataAdapter::applyQueryParameters($request->queryString, $request->parameters, $escapeQueryParameters);
+            }
+
+            return $dataAdapter->executeQuery($request->queryString);
+        }
+
+        return StiResult::error("Unknown command [$request->command]");
     }
 
     public function __construct($registerErrorHandlers = true)

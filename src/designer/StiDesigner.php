@@ -68,16 +68,16 @@ class StiDesigner extends StiHtmlComponent
             $result .= $this->getEventHtml('onOpenReport');
 
         if ($this->onSaveReport)
-            $result .= $this->getEventHtml('onSaveReport', true);
+            $result .= $this->getEventHtml('onSaveReport', false, true);
 
         if ($this->onSaveAsReport)
             $result .= $this->getEventHtml('onSaveAsReport', true);
 
         if ($this->onPreviewReport)
-            $result .= $this->getEventHtml('onPreviewReport');
+            $result .= $this->getEventHtml('onPreviewReport', true, false, false);
 
         if ($this->onExit)
-            $result .= $this->getEventHtml('onExit');
+            $result .= $this->getEventHtml('onExit', false, false, false);
 
         if ($this->report instanceof StiReport) {
             if (!$this->report->isHtmlRendered)
@@ -86,7 +86,7 @@ class StiDesigner extends StiHtmlComponent
             $result .= "$designerProperty.report = {$this->report->id};\n";
         }
 
-        $result .= "$designerProperty.renderHtml(" . (strlen($element) > 0 ? "'$element'" : '') . ");\n";
+        $result .= "$designerProperty.renderHtml(" . (!is_null($element) && strlen($element) > 0 ? "'$element'" : '') . ");\n";
 
         return $result;
     }
@@ -100,6 +100,6 @@ class StiDesigner extends StiHtmlComponent
     public function __construct($options = null, $id = 'StiDesigner')
     {
         $this->options = $options;
-        $this->id = strlen($id) > 0 ? $id : 'StiDesigner';
+        $this->id = !is_null($id) && strlen($id) > 0 ? $id : 'StiDesigner';
     }
 }

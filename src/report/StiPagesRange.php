@@ -2,7 +2,6 @@
 
 namespace Stimulsoft\Report;
 
-use Stimulsoft\Report\Enums\StiRangeType;
 use Stimulsoft\StiHtmlComponent;
 
 class StiPagesRange extends StiHtmlComponent
@@ -18,7 +17,7 @@ class StiPagesRange extends StiHtmlComponent
         if ($this->rangeType != StiRangeType::All) {
             $result .= "$this->id.rangeType = $this->rangeType;\n";
 
-            if (strlen($this->pageRanges) > 0)
+            if (!is_null($this->pageRanges) && strlen($this->pageRanges) > 0)
                 $result .= "$this->id.pageRanges = '$this->pageRanges';\n";
 
             if ($this->currentPage > 0)

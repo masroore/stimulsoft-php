@@ -43,9 +43,9 @@ class StiJavaScript
 
         $result = '';
         foreach ($scripts as $name) {
-            $product = strpos($name, 'dashboards') > 0 ? 'stimulsoft-dashboards-php' : 'stimulsoft-php';
+            $product = strpos($name, 'dashboards') > 0 ? 'dashboards-php' : 'reports-php';
             $root = $this->useRelativeUrls ? '' : '/';
-            $result .= "<script src=\"{$root}vendor/masroore/$product/scripts/$name\" type=\"text/javascript\"></script>\n";
+            $result .= "<script src=\"{$root}$name\" type=\"text/javascript\"></script>\n";
         }
 
         return $result;
