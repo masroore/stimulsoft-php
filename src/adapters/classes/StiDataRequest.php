@@ -5,13 +5,21 @@ namespace Stimulsoft;
 class StiDataRequest
 {
     public $encode = false;
+
     public $command;
+
     public $connectionString;
+
     public $queryString;
+
     public $parameters;
+
     public $database;
+
     public $dataSource;
+
     public $connection;
+
     public $timeout;
 
     private function populateVars($obj)
@@ -29,13 +37,13 @@ class StiDataRequest
     {
         $input = file_get_contents('php://input');
 
-        if (null !== $input && '' !== $input && '{' != mb_substr($input, 0, 1)) {
+        if ($input !== null && $input !== '' && mb_substr($input, 0, 1) != '{') {
             $input = base64_decode(str_rot13($input));
             $this->encode = true;
         }
 
         $obj = json_decode($input);
-        if (null == $obj) {
+        if ($obj == null) {
             $message = 'JSON parser error #'.json_last_error();
             if (\function_exists('json_last_error_msg')) {
                 $message .= ' ('.json_last_error_msg().')';

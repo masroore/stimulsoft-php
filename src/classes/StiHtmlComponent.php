@@ -5,6 +5,7 @@ namespace Stimulsoft;
 class StiHtmlComponent
 {
     public $id;
+
     public $isHtmlRendered = false;
 
     protected function getEventHtml($event, $callback = false, $prevent = false, $process = true)
@@ -24,7 +25,7 @@ class StiHtmlComponent
                 break;
         }
 
-        $eventValue = true === $this->{$event} ? '' : 'if (typeof '.$this->{$event}.' === "function") '.$this->{$event}.'(args); ';
+        $eventValue = $this->{$event} === true ? '' : 'if (typeof '.$this->{$event}.' === "function") '.$this->{$event}.'(args); ';
         $callbackValue = $callback ? ', callback' : '';
         $preventValue = $prevent ? 'args.preventDefault = true; ' : '';
         $processValue = $process ? "Stimulsoft.Helper.process(args$callbackValue); " : ($callback ? 'callback(); ' : '');

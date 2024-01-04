@@ -7,6 +7,7 @@ use Stimulsoft\StiHtmlComponent;
 class StiDictionary extends StiHtmlComponent
 {
     public $report;
+
     public $variables;
 
     /** Get the HTML representation of the component. */

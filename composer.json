@@ -13,5 +13,8 @@
     "classmap": [
       "src/"
     ]
+  },
+  "require-dev": {
+    "laravel/pint": "^1.13"
   }
 }

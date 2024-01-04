@@ -9,6 +9,7 @@ use Stimulsoft\StiResult;
 class StiOdbcAdapter extends StiDataAdapter
 {
     public $version = '2024.1.2';
+
     public $checkVersion = true;
 
     protected function getLastErrorResult($message = 'An unknown error has occurred.')
@@ -19,14 +20,14 @@ class StiOdbcAdapter extends StiDataAdapter
             $message = $error;
         }
 
-        return 0 == $code ? StiResult::error($message) : StiResult::error("[$code] $message");
+        return $code == 0 ? StiResult::error($message) : StiResult::error("[$code] $message");
     }
 
     protected function connect()
     {
         $this->connectionLink = odbc_connect($this->connectionInfo->dsn, $this->connectionInfo->userId, $this->connectionInfo->password);
 
-        if (!$this->connectionLink) {
+        if (! $this->connectionLink) {
             return $this->getLastErrorResult();
         }
 
@@ -131,7 +132,7 @@ class StiOdbcAdapter extends StiDataAdapter
 
     protected function getValue($type, $value)
     {
-        if (null === $value || 0 == \strlen($value)) {
+        if ($value === null || \strlen($value) == 0) {
             return null;
         }
 
@@ -166,7 +167,7 @@ class StiOdbcAdapter extends StiDataAdapter
         $result = $this->connect();
         if ($result->success) {
             $query = odbc_exec($this->connectionLink, $queryString);
-            if (!$query) {
+            if (! $query) {
                 return $this->getLastErrorResult();
             }
 
@@ -176,7 +177,7 @@ class StiOdbcAdapter extends StiDataAdapter
 
             $result->count = odbc_num_fields($query);
 
-            for ($i = 1; $i <= $result->count; ++$i) {
+            for ($i = 1; $i <= $result->count; $i++) {
                 $type = odbc_field_type($query, $i);
                 $result->types[] = $this->parseType($type);
                 $result->columns[] = odbc_field_name($query, $i);
@@ -184,7 +185,7 @@ class StiOdbcAdapter extends StiDataAdapter
 
             while (odbc_fetch_row($query)) {
                 $row = [];
-                for ($i = 1; $i <= $result->count; ++$i) {
+                for ($i = 1; $i <= $result->count; $i++) {
                     $type = $result->types[$i - 1];
                     $value = odbc_result($query, $i);
                     $row[] = $this->getValue($type, $value);

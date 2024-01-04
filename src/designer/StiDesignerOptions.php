@@ -55,13 +55,13 @@ class StiDesignerOptions extends StiComponentOptions
 
         foreach ($this->localizations as $localization) {
             $localizationPath = $this->getLocalizationPath($localization);
-            if (null != $localizationPath) {
+            if ($localizationPath != null) {
                 $result .= "Stimulsoft.Base.Localization.StiLocalization.addLocalizationFile('$localizationPath', true);\n";
             }
         }
 
         $localizationPath = $this->getLocalizationPath($this->localization);
-        if (null != $localizationPath) {
+        if ($localizationPath != null) {
             $result .= "Stimulsoft.Base.Localization.StiLocalization.setLocalizationFile('$localizationPath');\n";
         }
 

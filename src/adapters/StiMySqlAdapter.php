@@ -8,13 +8,14 @@ use Stimulsoft\StiResult;
 class StiMySqlAdapter extends StiDataAdapter
 {
     public $version = '2024.1.2';
+
     public $checkVersion = true;
 
     protected $driverName = 'mysql';
 
     protected function getLastErrorResult($message = 'An unknown error has occurred.')
     {
-        if ('PDO' == $this->driverType) {
+        if ($this->driverType == 'PDO') {
             return parent::getLastErrorResult($message);
         }
 
@@ -23,12 +24,12 @@ class StiMySqlAdapter extends StiDataAdapter
             $message = $this->connectionLink->error;
         }
 
-        return 0 == $code ? StiResult::error($message) : StiResult::error("[$code] $message");
+        return $code == 0 ? StiResult::error($message) : StiResult::error("[$code] $message");
     }
 
     protected function connect()
     {
-        if ('PDO' == $this->driverType) {
+        if ($this->driverType == 'PDO') {
             return parent::connect();
         }
 
@@ -40,7 +41,7 @@ class StiMySqlAdapter extends StiDataAdapter
             return StiResult::error("[{$this->connectionLink->connect_errno}] {$this->connectionLink->connect_error}");
         }
 
-        if (!$this->connectionLink->set_charset($this->connectionInfo->charset)) {
+        if (! $this->connectionLink->set_charset($this->connectionInfo->charset)) {
             return $this->getLastErrorResult();
         }
 
@@ -49,7 +50,7 @@ class StiMySqlAdapter extends StiDataAdapter
 
     protected function disconnect()
     {
-        if ('PDO' == $this->driverType) {
+        if ($this->driverType == 'PDO') {
             parent::disconnect();
         } elseif ($this->connectionLink) {
             $this->connectionLink->close();
@@ -127,16 +128,16 @@ class StiMySqlAdapter extends StiDataAdapter
     private function isBinaryStringType($meta)
     {
         // BINARY_ENCODING = 63, see https://github.com/sidorares/node-mysql2/blob/ef283413607a5ee6643c238245f3ad4b533f5689/lib/constants/charsets.js#L64
-        return ($meta->flags & MYSQLI_BINARY_FLAG) && (63 == $meta->charsetnr);
+        return ($meta->flags & MYSQLI_BINARY_FLAG) && ($meta->charsetnr == 63);
     }
 
     protected function parseType($meta)
     {
         $binary = false;
 
-        if ('PDO' == $this->driverType) {
+        if ($this->driverType == 'PDO') {
             foreach ($meta['flags'] as $value) {
-                if ('blob' == $value) {
+                if ($value == 'blob') {
                     $binary = true;
                 }
             }
@@ -164,7 +165,7 @@ class StiMySqlAdapter extends StiDataAdapter
                 return 'number';
 
             case 'tiny':
-                return 1 == $length ? 'boolean' : 'int';
+                return $length == 1 ? 'boolean' : 'int';
 
             case 'string':
             case 'var_string':
@@ -189,7 +190,7 @@ class StiMySqlAdapter extends StiDataAdapter
 
     protected function getValue($type, $value)
     {
-        if (null === $value || 0 == \strlen($value)) {
+        if ($value === null || \strlen($value) == 0) {
             return null;
         }
 
@@ -199,7 +200,7 @@ class StiMySqlAdapter extends StiDataAdapter
 
             case 'datetime':
                 // Replace invalid dates with NULL
-                if ('0000-00-00 00:00:00' == $value) {
+                if ($value == '0000-00-00 00:00:00') {
                     return null;
                 }
                 $timestamp = strtotime($value);
@@ -238,7 +239,7 @@ class StiMySqlAdapter extends StiDataAdapter
     protected function executeNative($queryString, $result)
     {
         $query = $this->connectionLink->query($queryString);
-        if (!$query) {
+        if (! $query) {
             return $this->getLastErrorResult();
         }
 
@@ -250,7 +251,7 @@ class StiMySqlAdapter extends StiDataAdapter
         }
 
         if ($query->num_rows > 0) {
-            $isColumnsEmpty = 0 == \count($result->columns);
+            $isColumnsEmpty = \count($result->columns) == 0;
             while ($rowItem = $isColumnsEmpty ? $query->fetch_assoc() : $query->fetch_row()) {
                 $row = [];
                 foreach ($rowItem as $key => $value) {

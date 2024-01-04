@@ -9,13 +9,14 @@ use Stimulsoft\StiResult;
 class StiMongoDbAdapter extends StiDataAdapter
 {
     public $version = '2024.1.2';
+
     public $checkVersion = true;
 
     protected $driverName = 'mongodb';
 
     protected function getLastErrorResult($message = 'An unknown error has occurred.')
     {
-        if ('PDO' == $this->driverType) {
+        if ($this->driverType == 'PDO') {
             return parent::getLastErrorResult($message);
         }
 
@@ -24,15 +25,15 @@ class StiMongoDbAdapter extends StiDataAdapter
 
     protected function connect()
     {
-        if ('PDO' == $this->driverType) {
+        if ($this->driverType == 'PDO') {
             return parent::connect();
         }
 
-        if (!class_exists('\MongoDB\Driver\Manager')) {
+        if (! class_exists('\MongoDB\Driver\Manager')) {
             return StiResult::error('MongoDB driver not found. Please configure your PHP server to work with MongoDB.');
         }
 
-        if ('' == $this->connectionInfo->database) {
+        if ($this->connectionInfo->database == '') {
             return StiResult::error('The database name cannot be empty.');
         }
 
@@ -49,7 +50,7 @@ class StiMongoDbAdapter extends StiDataAdapter
 
     protected function disconnect()
     {
-        if ('PDO' == $this->driverType) {
+        if ($this->driverType == 'PDO') {
             parent::disconnect();
         } elseif ($this->connectionLink) {
             $this->connectionLink = null;
@@ -114,7 +115,7 @@ class StiMongoDbAdapter extends StiDataAdapter
 
     protected function getValue($type, $value)
     {
-        if (null === $value) {
+        if ($value === null) {
             return null;
         }
 
@@ -224,7 +225,7 @@ class StiMongoDbAdapter extends StiDataAdapter
             $row = array_fill(0, $result->count, null);
             foreach ($document as $key => $value) {
                 $index = array_search($key, $result->columns);
-                if (false !== $index) {
+                if ($index !== false) {
                     $row[$index] = $this->getValue($result->types[$index], $value);
                 }
             }

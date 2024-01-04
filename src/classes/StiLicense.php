@@ -5,7 +5,9 @@ namespace Stimulsoft;
 class StiLicense
 {
     public $isHtmlRendered = false;
+
     private $licenseKey;
+
     private $licenseFile;
 
     private function clearKey()
@@ -32,9 +34,9 @@ class StiLicense
     public function getHtml()
     {
         $result = '';
-        if (null !== $this->licenseKey && '' !== $this->licenseKey) {
+        if ($this->licenseKey !== null && $this->licenseKey !== '') {
             $result .= "Stimulsoft.Base.StiLicense.Key = '$this->licenseKey';\n";
-        } elseif (null !== $this->licenseFile && '' !== $this->licenseFile) {
+        } elseif ($this->licenseFile !== null && $this->licenseFile !== '') {
             $result .= "Stimulsoft.Base.StiLicense.loadFromFile('$this->licenseFile');\n";
         }
 

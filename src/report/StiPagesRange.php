@@ -7,17 +7,19 @@ use Stimulsoft\StiHtmlComponent;
 class StiPagesRange extends StiHtmlComponent
 {
     public $rangeType = StiRangeType::All;
+
     public $pageRanges = '';
+
     public $currentPage = 0;
 
     /** Get the HTML representation of the component. */
     public function getHtml()
     {
         $result = "let $this->id = new Stimulsoft.Report.StiPagesRange();\n";
-        if (StiRangeType::All != $this->rangeType) {
+        if ($this->rangeType != StiRangeType::All) {
             $result .= "$this->id.rangeType = $this->rangeType;\n";
 
-            if (null !== $this->pageRanges && '' !== $this->pageRanges) {
+            if ($this->pageRanges !== null && $this->pageRanges !== '') {
                 $result .= "$this->id.pageRanges = '$this->pageRanges';\n";
             }
 

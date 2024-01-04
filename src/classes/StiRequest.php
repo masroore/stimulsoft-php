@@ -5,25 +5,38 @@ namespace Stimulsoft;
 class StiRequest extends StiDataRequest
 {
     public $sender;
+
     public $event;
+
     public $data;
+
     public $fileName;
+
     public $action;
+
     public $printAction;
+
     public $format;
+
     public $formatName;
+
     public $settings;
+
     public $variables;
+
     public $escapeQueryParameters;
+
     public $isWizardUsed;
+
     public $report;
+
     public $reportJson;
 
     protected function checkRequestParams($obj)
     {
-        if (!isset($obj->event) && isset($obj->command)
-                && (StiDataCommand::TestConnection == $obj->command || StiDataCommand::RetrieveSchema == $obj->command
-                || StiDataCommand::Execute == $obj->command || StiDataCommand::ExecuteQuery == $obj->command)) {
+        if (! isset($obj->event) && isset($obj->command)
+                && ($obj->command == StiDataCommand::TestConnection || $obj->command == StiDataCommand::RetrieveSchema
+                || $obj->command == StiDataCommand::Execute || $obj->command == StiDataCommand::ExecuteQuery)) {
             $this->event = StiEventType::BeginProcessData;
         }
 

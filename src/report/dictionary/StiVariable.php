@@ -29,7 +29,7 @@ class StiVariable extends StiHtmlComponent
 
     public function __construct($name = '', $type = 'String', $value = '')
     {
-        $this->name = null !== $name && \strlen($name) > 0 ? $name : 'variable';
+        $this->name = $name !== null && \strlen($name) > 0 ? $name : 'variable';
         $this->type = $type;
         $this->value = $value;
 

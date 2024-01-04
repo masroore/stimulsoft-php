@@ -45,12 +45,12 @@ class StiDesigner extends StiHtmlComponent
     {
         $result = '';
 
-        if ($this->options instanceof StiDesignerOptions && !$this->options->isHtmlRendered) {
+        if ($this->options instanceof StiDesignerOptions && ! $this->options->isHtmlRendered) {
             $result .= $this->options->getHtml();
         }
 
         $optionsProperty = $this->options instanceof StiDesignerOptions ? $this->options->property : 'null';
-        $designerProperty = 'StiDesigner' == $this->id ? 'designer' : $this->id;
+        $designerProperty = $this->id == 'StiDesigner' ? 'designer' : $this->id;
         $result .= "let $designerProperty = new Stimulsoft.Designer.StiDesigner($optionsProperty, '$this->id', false);\n";
 
         if ($this->onPrepareVariables) {
@@ -90,14 +90,14 @@ class StiDesigner extends StiHtmlComponent
         }
 
         if ($this->report instanceof StiReport) {
-            if (!$this->report->isHtmlRendered) {
+            if (! $this->report->isHtmlRendered) {
                 $result .= $this->report->getHtml();
             }
 
             $result .= "$designerProperty.report = {$this->report->id};\n";
         }
 
-        $result .= "$designerProperty.renderHtml(".(null !== $element && \strlen($element) > 0 ? "'$element'" : '').");\n";
+        $result .= "$designerProperty.renderHtml(".($element !== null && \strlen($element) > 0 ? "'$element'" : '').");\n";
 
         return $result;
     }
@@ -111,6 +111,6 @@ class StiDesigner extends StiHtmlComponent
     public function __construct($options = null, $id = 'StiDesigner')
     {
         $this->options = $options;
-        $this->id = null !== $id && \strlen($id) > 0 ? $id : 'StiDesigner';
+        $this->id = $id !== null && \strlen($id) > 0 ? $id : 'StiDesigner';
     }
 }

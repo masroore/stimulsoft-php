@@ -38,7 +38,7 @@ class StiViewerOptions extends StiComponentOptions
         $result = '';
 
         $localizationPath = $this->getLocalizationPath($this->localization);
-        if (null != $localizationPath) {
+        if ($localizationPath != null) {
             $result .= "Stimulsoft.Base.Localization.StiLocalization.setLocalizationFile('$localizationPath');\n";
         }
 

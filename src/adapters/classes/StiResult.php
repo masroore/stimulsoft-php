@@ -5,13 +5,19 @@ namespace Stimulsoft;
 class StiResult
 {
     public $handlerVersion;
+
     public $adapterVersion;
+
     public $checkVersion = true;
 
     public $success = false;
+
     public $notice;
+
     public $object;
+
     public $variables;
+
     public $report;
 
     public static function success($notice = null, $object = null)

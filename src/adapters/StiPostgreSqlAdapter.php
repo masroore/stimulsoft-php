@@ -8,13 +8,14 @@ use Stimulsoft\StiResult;
 class StiPostgreSqlAdapter extends StiDataAdapter
 {
     public $version = '2024.1.2';
+
     public $checkVersion = true;
 
     protected $driverName = 'pgsql';
 
     protected function getLastErrorResult($message = 'An unknown error has occurred.')
     {
-        if ('PDO' == $this->driverType) {
+        if ($this->driverType == 'PDO') {
             return parent::getLastErrorResult($message);
         }
 
@@ -28,11 +29,11 @@ class StiPostgreSqlAdapter extends StiDataAdapter
 
     protected function connect()
     {
-        if ('PDO' == $this->driverType) {
+        if ($this->driverType == 'PDO') {
             return parent::connect();
         }
 
-        if (!\function_exists('pg_connect')) {
+        if (! \function_exists('pg_connect')) {
             return StiResult::error('PostgreSQL driver not found. Please configure your PHP server to work with PostgreSQL.');
         }
 
@@ -41,7 +42,7 @@ class StiPostgreSqlAdapter extends StiDataAdapter
             "' user='".$this->connectionInfo->userId."' password='".$this->connectionInfo->password.
             "' options='--client_encoding=".$this->connectionInfo->charset."'";
         $this->connectionLink = pg_connect($connectionString);
-        if (!$this->connectionLink) {
+        if (! $this->connectionLink) {
             return $this->getLastErrorResult();
         }
 
@@ -50,7 +51,7 @@ class StiPostgreSqlAdapter extends StiDataAdapter
 
     protected function disconnect()
     {
-        if ('PDO' == $this->driverType) {
+        if ($this->driverType == 'PDO') {
             parent::disconnect();
         } elseif ($this->connectionLink) {
             pg_close($this->connectionLink);
@@ -81,8 +82,8 @@ class StiPostgreSqlAdapter extends StiDataAdapter
 
     protected function parseType($meta)
     {
-        $type = strtolower('PDO' == $this->driverType ? $meta['native_type'] : $meta);
-        if ('_' == substr($type, 0, 1)) {
+        $type = strtolower($this->driverType == 'PDO' ? $meta['native_type'] : $meta);
+        if (substr($type, 0, 1) == '_') {
             $type = 'array';
         }
 
@@ -137,7 +138,7 @@ class StiPostgreSqlAdapter extends StiDataAdapter
 
     protected function getValue($type, $value)
     {
-        if (null === $value || 0 == \strlen($value)) {
+        if ($value === null || \strlen($value) == 0) {
             return null;
         }
 
@@ -157,7 +158,7 @@ class StiPostgreSqlAdapter extends StiDataAdapter
             case 'datetimeoffset':
                 if (\strlen($value) <= 15) {
                     $offset = substr($value, strpos($value, '+'));
-                    if (3 == \strlen($offset)) {
+                    if (\strlen($offset) == 3) {
                         $offset .= ':00';
                     }
                     $value = substr($value, 0, strpos($value, '+'));
@@ -202,13 +203,13 @@ class StiPostgreSqlAdapter extends StiDataAdapter
     protected function executeNative($queryString, $result)
     {
         $query = pg_query($this->connectionLink, $queryString);
-        if (!$query) {
+        if (! $query) {
             return $this->getLastErrorResult();
         }
 
         $result->count = pg_num_fields($query);
 
-        for ($i = 0; $i < $result->count; ++$i) {
+        for ($i = 0; $i < $result->count; $i++) {
             $result->columns[] = pg_field_name($query, $i);
             $type = pg_field_type($query, $i);
             $result->types[] = $this->parseType($type);

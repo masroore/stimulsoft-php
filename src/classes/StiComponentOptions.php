@@ -5,22 +5,24 @@ namespace Stimulsoft;
 class StiComponentOptions
 {
     public $property;
+
     public $isHtmlRendered = false;
 
     protected $enums = [];
+
     protected $ignore = ['ignore', 'enums', 'property', 'localization'];
 
     protected function getLocalizationPath($localization)
     {
-        if (null === $localization || 0 == \strlen($localization)) {
+        if ($localization === null || \strlen($localization) == 0) {
             return null;
         }
 
-        if (\strlen($localization) < 5 || '.xml' != substr($localization, -4)) {
+        if (\strlen($localization) < 5 || substr($localization, -4) != '.xml') {
             $localization .= '.xml';
         }
 
-        if (!preg_match('/[\/\\\]/', $localization)) {
+        if (! preg_match('/[\/\\\]/', $localization)) {
             $localization = 'vendor/stimulsoft/reports-php/localization/'.$localization;
         }
 
@@ -29,11 +31,11 @@ class StiComponentOptions
 
     private function getColorValue($value)
     {
-        if (null == $value || 0 == \strlen($value)) {
+        if ($value == null || \strlen($value) == 0) {
             return 'Stimulsoft.System.Drawing.Color.transparent';
         }
 
-        if ('#' == $value[0]) {
+        if ($value[0] == '#') {
             [$r, $g, $b] = sscanf($value, '#%02x%02x%02x');
 
             return "Stimulsoft.System.Drawing.Color.fromArgb(255, $r, $g, $b)";
@@ -49,17 +51,17 @@ class StiComponentOptions
         $className = static::class;
         $vars = get_class_vars($className);
         foreach ($vars as $name => $defaultValue) {
-            if (!\in_array($name, $this->ignore)) {
+            if (! \in_array($name, $this->ignore)) {
                 if (\is_object($this->{$name})) {
                     $result .= $this->{$name}->getHtml();
                 } else {
                     $currentValue = $this->{$name};
                     if ($currentValue != $defaultValue) {
                         $stringValue = \in_array($name, $this->enums) ? $currentValue : var_export($currentValue, true);
-                        if (0 === substr_compare($name, 'Color', -5)) {
+                        if (substr_compare($name, 'Color', -5) === 0) {
                             $stringValue = $this->getColorValue($currentValue);
                         }
-                        if ('NULL' == $stringValue) {
+                        if ($stringValue == 'NULL') {
                             $stringValue = 'null';
                         }
                         $result .= "$this->property.$name = $stringValue;\n";

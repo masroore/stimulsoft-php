@@ -10,9 +10,13 @@ use Stimulsoft\Report\StiVariableRange;
 class StiHandler extends StiDataHandler
 {
     public $options;
+
     public $license;
+
     public $encryptData = true;
+
     public $escapeQueryParameters = true;
+
     public $passQueryParametersToReport = false;
 
     /** The event is invoked before data request, which needed to render a report. */
@@ -52,22 +56,22 @@ class StiHandler extends StiDataHandler
 
     private function checkEventResult($event, $args)
     {
-        if (isset($args) && null == $args->sender) {
+        if (isset($args) && $args->sender == null) {
             $args->sender = StiComponentType::Report;
         }
         if (isset($event)) {
             $result = $event($args);
         }
-        if (!isset($result)) {
+        if (! isset($result)) {
             $result = StiResult::success();
         }
-        if (true === $result) {
+        if ($result === true) {
             return StiResult::success();
         }
-        if (false === $result) {
+        if ($result === false) {
             return StiResult::error();
         }
-        if ('string' == \gettype($result)) {
+        if (\gettype($result) == 'string') {
             return StiResult::error($result);
         }
         if (isset($args)) {
@@ -81,8 +85,8 @@ class StiHandler extends StiDataHandler
     {
         $arr = $settings->$param;
 
-        if (null != $arr && \count($arr) > 0) {
-            if ('cc' == $param) {
+        if ($arr != null && \count($arr) > 0) {
+            if ($param == 'cc') {
                 $mail->clearCCs();
             } else {
                 $mail->clearBCCs();
@@ -90,9 +94,9 @@ class StiHandler extends StiDataHandler
 
             foreach ($arr as $value) {
                 $name = mb_strpos($value, ' ') > 0 ? mb_substr($value, mb_strpos($value, ' ')) : '';
-                $address = null !== $name && \strlen($name) > 0 ? mb_substr($value, 0, mb_strpos($value, ' ')) : $value;
+                $address = $name !== null && \strlen($name) > 0 ? mb_substr($value, 0, mb_strpos($value, ' ')) : $value;
 
-                if ('cc' == $param) {
+                if ($param == 'cc') {
                     $mail->addCC($address, $name);
                 } else {
                     $mail->addBCC($address, $name);
@@ -135,7 +139,7 @@ class StiHandler extends StiDataHandler
                 $variableObject->value = $item->value;
                 $variableObject->type = $item->type;
 
-                if ('Range' === substr($item->type, -5)) {
+                if (substr($item->type, -5) === 'Range') {
                     $variableObject->value = new StiVariableRange();
                     $variableObject->value->from = $item->value->from;
                     $variableObject->value->to = $item->value->to;
@@ -151,13 +155,13 @@ class StiHandler extends StiDataHandler
             $variables = [];
             foreach ($result->object->variables as $key => $item) {
                 // Send only changed or new values
-                if (!\array_key_exists($key, $request->variables)
+                if (! \array_key_exists($key, $request->variables)
                     || $item->value != $request->variables[$key]->value
-                    || 'Range' === substr($item->type, -5) && (
+                    || substr($item->type, -5) === 'Range' && (
                         $item->value->from != $request->variables[$key]->value->from
                         || $item->value->to != $request->variables[$key]->value->to)
                 ) {
-                    if (!\is_object($item)) {
+                    if (! \is_object($item)) {
                         $item = (object) $item;
                     }
                     $item->name = $key;
@@ -211,9 +215,9 @@ class StiHandler extends StiDataHandler
         $args = new StiExportEventArgs();
         $args->populateVars($request);
 
-        $args->action = null == $args->action ? StiExportAction::PrintReport : $args->action;
-        $args->format = StiPrintAction::PrintPdf == $args->printAction ? StiExportFormat::Pdf : StiExportFormat::Html;
-        $args->formatName = StiPrintAction::PrintPdf == $args->printAction ? 'Pdf' : 'Html';
+        $args->action = $args->action == null ? StiExportAction::PrintReport : $args->action;
+        $args->format = $args->printAction == StiPrintAction::PrintPdf ? StiExportFormat::Pdf : StiExportFormat::Html;
+        $args->formatName = $args->printAction == StiPrintAction::PrintPdf ? 'Pdf' : 'Html';
 
         return $this->checkEventResult($this->onPrintReport, $args);
     }
@@ -235,7 +239,7 @@ class StiHandler extends StiDataHandler
     {
         $args = new StiExportEventArgs();
         $args->populateVars($request);
-        $args->action = null == $args->action ? StiExportAction::ExportReport : $args->action;
+        $args->action = $args->action == null ? StiExportAction::ExportReport : $args->action;
         $args->fileExtension = StiExportFormat::getFileExtension($request->format);
 
         return $this->checkEventResult($this->onEndExportReport, $args);
@@ -327,13 +331,13 @@ class StiHandler extends StiDataHandler
             switch ($request->event) {
                 case StiEventType::BeginProcessData:
                     $dataAdapter = StiDataAdapter::getDataAdapter($request->database);
-                    if (null == $dataAdapter) {
+                    if ($dataAdapter == null) {
                         $result = StiResult::error("Unknown database type [$request->database]");
                         break;
                     }
 
                     $result = $this->invokeBeginProcessData($request);
-                    if (!$result->success) {
+                    if (! $result->success) {
                         break;
                     }
 
@@ -342,7 +346,7 @@ class StiHandler extends StiDataHandler
                     $request->parameters = $result->object->parameters;
 
                     $result = $this->getDataAdapterResult($dataAdapter, $request);
-                    if (!$result->success) {
+                    if (! $result->success) {
                         break;
                     }
 
@@ -350,7 +354,7 @@ class StiHandler extends StiDataHandler
                     $result = $this->invokeEndProcessData($request, $result);
                     $result->adapterVersion = $dataAdapter->version;
                     $result->checkVersion = $dataAdapter->checkVersion;
-                    if (!$result->success) {
+                    if (! $result->success) {
                         break;
                     }
 
@@ -405,7 +409,7 @@ class StiHandler extends StiDataHandler
         }
 
         $result->handlerVersion = $this->version;
-        if (StiEventType::BeginProcessData != $request->event) {
+        if ($request->event != StiEventType::BeginProcessData) {
             unset($result->adapterVersion);
             unset($result->checkVersion);
         }
@@ -530,11 +534,11 @@ class StiHandler extends StiDataHandler
             jsHelper = typeof jsHelper !== 'undefined' ? jsHelper : Stimulsoft.Helper;
             ";
 
-        if (!$this->encryptData) {
+        if (! $this->encryptData) {
             $result .= "StiOptions.WebServer.encryptData = false;\n";
         }
 
-        if (!$this->escapeQueryParameters) {
+        if (! $this->escapeQueryParameters) {
             $result .= "StiOptions.WebServer.escapeQueryParameters = false;\n";
         }
 
@@ -542,7 +546,7 @@ class StiHandler extends StiDataHandler
             $result .= "StiOptions.WebServer.passQueryParametersToReport = true;\n";
         }
 
-        if (!$this->license->isHtmlRendered) {
+        if (! $this->license->isHtmlRendered) {
             $result .= $this->license->getHtml();
         }
 

@@ -20,7 +20,7 @@ class StiDataHandler
     public function stiShutdownFunction()
     {
         $err = error_get_last();
-        if (null != $err && (($err['type'] & \E_COMPILE_ERROR) || ($err['type'] & \E_ERROR) || ($err['type'] & \E_CORE_ERROR) || ($err['type'] & \E_RECOVERABLE_ERROR))) {
+        if ($err != null && (($err['type'] & \E_COMPILE_ERROR) || ($err['type'] & \E_ERROR) || ($err['type'] & \E_CORE_ERROR) || ($err['type'] & \E_RECOVERABLE_ERROR))) {
             $result = StiResult::error("[{$err['type']}] {$err['message']} ({$err['file']}, Line {$err['line']})");
             StiResponse::json($result);
             exit;
@@ -40,7 +40,7 @@ class StiDataHandler
         $request = new StiDataRequest();
         $result = $request->parse();
         if ($result->success) {
-            if (StiDataCommand::GetSupportedAdapters == $result->object->command) {
+            if ($result->object->command == StiDataCommand::GetSupportedAdapters) {
                 $databases = StiDatabaseType::getTypes();
                 $result = [
                     'success' => true,
@@ -48,7 +48,7 @@ class StiDataHandler
                 ];
             } else {
                 $dataAdapter = StiDataAdapter::getDataAdapter($request->database);
-                if (null == $dataAdapter) {
+                if ($dataAdapter == null) {
                     $result = StiResult::error("Unknown database type [$request->database]");
                 } else {
                     $request->parameters = $this->getParameters($request);
@@ -73,7 +73,7 @@ class StiDataHandler
         $parameters = [];
         if (isset($request->queryString) && isset($request->parameters)) {
             foreach ($request->parameters as $item) {
-                $name = 0 === mb_strpos($item->name, '@') || 0 === mb_strpos($item->name, ':') ? mb_substr($item->name, 1) : $item->name;
+                $name = mb_strpos($item->name, '@') === 0 || mb_strpos($item->name, ':') === 0 ? mb_substr($item->name, 1) : $item->name;
                 $parameters[$name] = $item;
                 unset($item->name);
             }
@@ -86,20 +86,20 @@ class StiDataHandler
     {
         $dataAdapter->parse($request->connectionString);
 
-        if (StiDataCommand::TestConnection == $request->command) {
+        if ($request->command == StiDataCommand::TestConnection) {
             return $dataAdapter->test();
         }
 
-        if (StiDataCommand::RetrieveSchema == $request->command) {
+        if ($request->command == StiDataCommand::RetrieveSchema) {
             return $dataAdapter->executeQuery($request->dataSource);
         }
 
-        if (StiDataCommand::Execute == $request->command || StiDataCommand::ExecuteQuery == $request->command) {
+        if ($request->command == StiDataCommand::Execute || $request->command == StiDataCommand::ExecuteQuery) {
             if ($dataAdapter instanceof StiMongoDbAdapter) {
                 $request->queryString = $request->dataSource;
             }
 
-            if (StiDataCommand::Execute == $request->command) {
+            if ($request->command == StiDataCommand::Execute) {
                 $request->queryString = $dataAdapter->makeQuery($request->queryString, $request->parameters);
             }
 

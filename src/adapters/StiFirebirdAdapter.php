@@ -8,13 +8,14 @@ use Stimulsoft\StiResult;
 class StiFirebirdAdapter extends StiDataAdapter
 {
     public $version = '2024.1.2';
+
     public $checkVersion = true;
 
     protected $driverName = 'firebird';
 
     protected function getLastErrorResult($message = 'An unknown error has occurred.')
     {
-        if ('PDO' == $this->driverType) {
+        if ($this->driverType == 'PDO') {
             return parent::getLastErrorResult($message);
         }
 
@@ -24,23 +25,23 @@ class StiFirebirdAdapter extends StiDataAdapter
             $message = $error;
         }
 
-        return 0 == $code ? StiResult::error($message) : StiResult::error("[$code] $message");
+        return $code == 0 ? StiResult::error($message) : StiResult::error("[$code] $message");
     }
 
     protected function connect()
     {
-        if ('PDO' == $this->driverType) {
+        if ($this->driverType == 'PDO') {
             return parent::connect();
         }
 
-        if (!\function_exists('ibase_connect')) {
+        if (! \function_exists('ibase_connect')) {
             return StiResult::error('Firebird driver not found. Please configure your PHP server to work with Firebird.');
         }
 
         $this->connectionLink = ibase_connect(
             $this->connectionInfo->host.'/'.$this->connectionInfo->port.':'.$this->connectionInfo->database,
             $this->connectionInfo->userId, $this->connectionInfo->password, $this->connectionInfo->charset);
-        if (!$this->connectionLink) {
+        if (! $this->connectionLink) {
             return $this->getLastErrorResult();
         }
 
@@ -49,7 +50,7 @@ class StiFirebirdAdapter extends StiDataAdapter
 
     protected function disconnect()
     {
-        if ('PDO' == $this->driverType) {
+        if ($this->driverType == 'PDO') {
             parent::disconnect();
         } elseif ($this->connectionLink) {
             ibase_close($this->connectionLink);
@@ -112,7 +113,7 @@ class StiFirebirdAdapter extends StiDataAdapter
 
     protected function getValue($type, $value)
     {
-        if (null === $value || 0 == \strlen($value)) {
+        if ($value === null || \strlen($value) == 0) {
             return null;
         }
 
@@ -155,13 +156,13 @@ class StiFirebirdAdapter extends StiDataAdapter
     protected function executeNative($queryString, $result)
     {
         $query = ibase_query($this->connectionLink, $queryString);
-        if (!$query) {
+        if (! $query) {
             return $this->getLastErrorResult();
         }
 
         $result->count = ibase_num_fields($query);
 
-        for ($i = 0; $i < $result->count; ++$i) {
+        for ($i = 0; $i < $result->count; $i++) {
             $meta = ibase_field_info($query, $i);
             $result->columns[] = $meta['name'];
             $result->types[] = $this->parseType($meta['type']);

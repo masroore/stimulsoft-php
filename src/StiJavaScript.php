@@ -5,8 +5,11 @@ namespace Stimulsoft;
 class StiJavaScript
 {
     public $componentType;
+
     public $options;
+
     public $usePacked = false;
+
     public $useRelativeUrls = true;
 
     public function getHtml()
@@ -36,11 +39,11 @@ class StiJavaScript
             $scripts[] = "stimulsoft.dashboards.$extension";
         }
 
-        if (StiComponentType::Viewer == $this->componentType || StiComponentType::Designer == $this->componentType) {
+        if ($this->componentType == StiComponentType::Viewer || $this->componentType == StiComponentType::Designer) {
             $scripts[] = "stimulsoft.viewer.$extension";
         }
 
-        if (StiComponentType::Designer == $this->componentType) {
+        if ($this->componentType == StiComponentType::Designer) {
             $scripts[] = "stimulsoft.designer.$extension";
 
             if ($this->options->blocklyEditor) {
@@ -70,6 +73,6 @@ class StiJavaScript
     public function __construct($componentType, $options = null)
     {
         $this->componentType = $componentType;
-        $this->options = null != $options ? $options : new StiJavaScriptOptions();
+        $this->options = $options != null ? $options : new StiJavaScriptOptions();
     }
 }
