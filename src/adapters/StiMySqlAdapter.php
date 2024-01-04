@@ -2,26 +2,24 @@
 
 namespace Stimulsoft\Adapters;
 
-use mysqli;
 use Stimulsoft\StiDataResult;
 use Stimulsoft\StiResult;
 
 class StiMySqlAdapter extends StiDataAdapter
 {
-    public $version = '2023.1.1';
+    public $version = '2024.1.2';
     public $checkVersion = true;
 
     protected $driverName = 'mysql';
 
-    protected function getLastErrorResult()
+    protected function getLastErrorResult($message = 'An unknown error has occurred.')
     {
         if ($this->driverType == 'PDO')
-            return parent::getLastErrorResult();
+            return parent::getLastErrorResult($message);
 
-        $message = 'Unknown';
-        $code = $this->link->errno;
-        if ($this->link->error)
-            $message = $this->link->error;
+        $code = $this->connectionLink->errno;
+        if ($this->connectionLink->error)
+            $message = $this->connectionLink->error;
 
         return $code == 0 ? StiResult::error($message) : StiResult::error("[$code] $message");
     }
@@ -31,12 +29,14 @@ class StiMySqlAdapter extends StiDataAdapter
         if ($this->driverType == 'PDO')
             return parent::connect();
 
-        $this->link = new mysqli($this->info->host, $this->info->userId, $this->info->password, $this->info->database, $this->info->port);
+        $this->connectionLink = new \mysqli(
+            $this->connectionInfo->host, $this->connectionInfo->userId, $this->connectionInfo->password,
+            $this->connectionInfo->database, $this->connectionInfo->port);
 
-        if ($this->link->connect_error)
-            return StiResult::error("[{$this->link->connect_errno}] {$this->link->connect_error}");
+        if ($this->connectionLink->connect_error)
+            return StiResult::error("[{$this->connectionLink->connect_errno}] {$this->connectionLink->connect_error}");
 
-        if (!$this->link->set_charset($this->info->charset))
+        if (!$this->connectionLink->set_charset($this->connectionInfo->charset))
             return $this->getLastErrorResult();
 
         return StiDataResult::success();
@@ -46,9 +46,9 @@ class StiMySqlAdapter extends StiDataAdapter
     {
         if ($this->driverType == 'PDO')
             parent::disconnect();
-        else if ($this->link) {
-            $this->link->close();
-            $this->link = null;
+        else if ($this->connectionLink) {
+            $this->connectionLink->close();
+            $this->connectionLink = null;
         }
     }
 
@@ -57,8 +57,8 @@ class StiMySqlAdapter extends StiDataAdapter
         if (parent::parse($connectionString))
             return true;
 
-        $this->info->port = 3306;
-        $this->info->charset = 'utf8';
+        $this->connectionInfo->port = 3306;
+        $this->connectionInfo->charset = 'utf8';
 
         $parameterNames = array(
             'host' => ['server', 'host', 'location'],
@@ -69,7 +69,7 @@ class StiMySqlAdapter extends StiDataAdapter
             'charset' => ['charset']
         );
 
-        return $this->parseParameters($connectionString, $parameterNames);
+        return $this->parseParameters($parameterNames);
     }
 
     private function getStringType($meta)
@@ -211,9 +211,15 @@ class StiMySqlAdapter extends StiDataAdapter
         return $value;
     }
 
+    public function makeQuery($procedure, $parameters)
+    {
+        $paramsString = parent::makeQuery($procedure, $parameters);
+        return "CALL $procedure ($paramsString)";
+    }
+
     protected function executeNative($queryString, $result)
     {
-        $query = $this->link->query($queryString);
+        $query = $this->connectionLink->query($queryString);
         if (!$query)
             return $this->getLastErrorResult();
 

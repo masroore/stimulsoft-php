@@ -2,18 +2,17 @@
 
 namespace Stimulsoft;
 
-use Stimulsoft\Enums\StiComponentType;
-
 class StiJavaScript
 {
     public $componentType;
     public $options;
-    public $packed = false;
+    public $usePacked = false;
+    public $useRelativeUrls = true;
 
     public function getHtml()
     {
         $dashboards = class_exists('\Stimulsoft\Report\StiDashboard');
-        $extension = $this->packed ? 'pack.js' : 'js';
+        $extension = $this->usePacked ? 'pack.js' : 'js';
 
         $scripts = array();
         if ($this->options->reports)
@@ -44,8 +43,9 @@ class StiJavaScript
 
         $result = '';
         foreach ($scripts as $name) {
-            $product = strpos($name, 'dashboards') > 0 ? 'dashboards-php' : 'reports-php';
-            $result .= "<script src=\"/vendor/stimulsoft/$product/public/scripts/$name\" type=\"text/javascript\"></script>\n";
+            $product = strpos($name, 'dashboards') > 0 ? 'stimulsoft-dashboards-php' : 'stimulsoft-php';
+            $root = $this->useRelativeUrls ? '' : '/';
+            $result .= "<script src=\"{$root}vendor/masroore/$product/scripts/$name\" type=\"text/javascript\"></script>\n";
         }
 
         return $result;

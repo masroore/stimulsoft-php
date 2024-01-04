@@ -74,13 +74,13 @@ class StiViewer extends StiHtmlComponent
             $result .= $this->getEventHtml('onEndExportReport', true, true);
 
         if ($this->onInteraction)
-            $result .= $this->getEventHtml('onInteraction');
+            $result .= $this->getEventHtml('onInteraction', true, false, false);
 
         if ($this->onEmailReport)
             $result .= $this->getEventHtml('onEmailReport');
 
         if ($this->onDesignReport)
-            $result .= $this->getEventHtml('onDesignReport');
+            $result .= $this->getEventHtml('onDesignReport', false, false, false);
 
         if ($this->report instanceof StiReport) {
             if (!$this->report->isHtmlRendered)
@@ -89,7 +89,7 @@ class StiViewer extends StiHtmlComponent
             $result .= "$viewerProperty.report = {$this->report->id};\n";
         }
 
-        $result .= "$viewerProperty.renderHtml(" . (strlen($element) > 0 ? "'$element'" : '') . ");\n";
+        $result .= "$viewerProperty.renderHtml(" . (!is_null($element) && strlen($element) > 0 ? "'$element'" : '') . ");\n";
 
         return $result;
     }
@@ -103,6 +103,6 @@ class StiViewer extends StiHtmlComponent
     public function __construct($options = null, $id = 'StiViewer')
     {
         $this->options = $options;
-        $this->id = strlen($id) > 0 ? $id : 'StiViewer';
+        $this->id = !is_null($id) && strlen($id) > 0 ? $id : 'StiViewer';
     }
 }
