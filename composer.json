@@ -1,0 +1,28 @@
+{
+  "name": "masroore/stimulsoft-php",
+  "keywords": ["report", "reporting", "generator", "viewer", "designer", "data", "xml", "json", "sql", "export", "pdf", "excel", "word", "html", "barcode", "qr-code", "charts", "maps"],
+  "homepage": "https://github.com/masroore/stimulsoft-php",
+  "minimum-stability": "stable",
+  "require": {
+    "php": ">=8.1",
+    "phpmailer/phpmailer": "^6.9",
+    "ext-mbstring": "*",
+    "ext-json": "*",
+    "ext-zlib": "*"
+  },
+  "suggest": {
+    "ext-pdo": "*",
+    "ext-oci8": "*",
+    "ext-interbase": "*",
+    "ext-pgsql": "*",
+    "ext-odbc": "*",
+    "ext-sqlsrv": "*",
+    "ext-mssql": "*",
+    "ext-mysqli": "*"
+  },
+  "autoload": {
+    "classmap": [
+      "src/"
+    ]
+  }
+}
