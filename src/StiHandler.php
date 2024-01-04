@@ -2,7 +2,8 @@
 
 namespace Stimulsoft;
 
-use PHPMailer\PHPMailer\PHPMailer;
+//use PHPMailer\PHPMailer\PHPMailer;
+use BadMethodCallException;
 use Stimulsoft\Adapters\StiDataAdapter;
 use Stimulsoft\Report\StiVariable;
 use Stimulsoft\Report\StiVariableRange;
@@ -221,6 +222,8 @@ class StiHandler extends StiDataHandler
 
     private function invokeEmailReport($request)
     {
+        throw new BadMethodCallException();
+        /*
         $settings = new StiEmailSettings();
         $settings->to = $request->settings->email;
         $settings->subject = $request->settings->subject;
@@ -291,6 +294,7 @@ class StiHandler extends StiDataHandler
         unlink('tmp/' . $guid . '.' . $args->fileName);
 
         return isset($error) ? StiResult::error($error) : $result;
+        */
     }
 
     /** Start processing the request from the client side. */
@@ -494,7 +498,7 @@ class StiHandler extends StiDataHandler
             }
 
             Stimulsoft = Stimulsoft || {};
-            Stimulsoft.Helper = new StiHelper('{$this->options->url}', {$this->options->timeout});
+            Stimulsoft.Helper = new StiHelper('{$this->options->url}', {$this->options->timeout})
             jsHelper = typeof jsHelper !== 'undefined' ? jsHelper : Stimulsoft.Helper;
             ";
 
