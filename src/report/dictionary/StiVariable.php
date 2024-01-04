@@ -15,7 +15,6 @@ class StiVariable extends StiHtmlComponent
     /** @var object The value of the variable. The type of object depends on the type of variable. */
     public $value;
 
-
     /** Get the HTML representation of the component. */
     public function getHtml()
     {
@@ -24,12 +23,13 @@ class StiVariable extends StiHtmlComponent
             "('', '{$this->name}', '{$this->name}', '', Stimulsoft.System.{$this->type}, '{$this->value}');\n";
 
         $this->isHtmlRendered = true;
+
         return $result;
     }
 
     public function __construct($name = '', $type = 'String', $value = '')
     {
-        $this->name = !is_null($name) && strlen($name) > 0 ? $name : 'variable';
+        $this->name = null !== $name && \strlen($name) > 0 ? $name : 'variable';
         $this->type = $type;
         $this->value = $value;
 

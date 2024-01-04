@@ -41,8 +41,8 @@ class StiEmailSettings
     public $password;
 
     /** The array of 'cc' addresses. */
-    public $cc = array();
+    public $cc = [];
 
     /** The array of 'bcc' addresses. */
-    public $bcc = array();
+    public $bcc = [];
 }

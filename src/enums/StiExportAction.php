@@ -4,7 +4,7 @@ namespace Stimulsoft;
 
 class StiExportAction
 {
-    const ExportReport = 1;
-    const SendEmail = 2;
-    const PrintReport = 3;
+    public const ExportReport = 1;
+    public const SendEmail = 2;
+    public const PrintReport = 3;
 }

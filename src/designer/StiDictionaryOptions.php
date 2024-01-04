@@ -9,7 +9,7 @@ class StiDictionaryOptions extends StiComponentOptions
 {
     protected $enums = [
         'useAliases', 'newReportDictionary', 'dataSourcesPermissions', 'dataConnectionsPermissions', 'dataColumnsPermissions',
-        'dataRelationsPermissions', 'businessObjectsPermissions', 'variablesPermissions', 'resourcesPermissions'
+        'dataRelationsPermissions', 'businessObjectsPermissions', 'variablesPermissions', 'resourcesPermissions',
     ];
 
     /** Gets or sets a visibility of the other category in the new connection form. */

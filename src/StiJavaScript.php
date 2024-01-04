@@ -14,31 +14,38 @@ class StiJavaScript
         $dashboards = class_exists('\Stimulsoft\Report\StiDashboard');
         $extension = $this->usePacked ? 'pack.js' : 'js';
 
-        $scripts = array();
-        if ($this->options->reports)
+        $scripts = [];
+        if ($this->options->reports) {
             $scripts[] = "stimulsoft.reports.$extension";
-        else {
-            if ($this->options->reportsChart)
+        } else {
+            if ($this->options->reportsChart) {
                 $scripts[] = "stimulsoft.reports.chart.$extension";
-            if ($this->options->reportsExport)
+            }
+            if ($this->options->reportsExport) {
                 $scripts[] = "stimulsoft.reports.export.$extension";
-            if ($this->options->reportsMaps)
+            }
+            if ($this->options->reportsMaps) {
                 $scripts[] = "stimulsoft.reports.maps.$extension";
-            if ($this->options->reportsImportXlsx)
+            }
+            if ($this->options->reportsImportXlsx) {
                 $scripts[] = "stimulsoft.reports.import.xlsx.$extension";
+            }
         }
 
-        if ($dashboards)
+        if ($dashboards) {
             $scripts[] = "stimulsoft.dashboards.$extension";
+        }
 
-        if ($this->componentType == StiComponentType::Viewer || $this->componentType == StiComponentType::Designer)
+        if (StiComponentType::Viewer == $this->componentType || StiComponentType::Designer == $this->componentType) {
             $scripts[] = "stimulsoft.viewer.$extension";
+        }
 
-        if ($this->componentType == StiComponentType::Designer) {
+        if (StiComponentType::Designer == $this->componentType) {
             $scripts[] = "stimulsoft.designer.$extension";
 
-            if ($this->options->blocklyEditor)
+            if ($this->options->blocklyEditor) {
                 $scripts[] = "stimulsoft.blockly.editor.$extension";
+            }
         }
 
         $result = '';
@@ -63,6 +70,6 @@ class StiJavaScript
     public function __construct($componentType, $options = null)
     {
         $this->componentType = $componentType;
-        $this->options = $options != null ? $options : new StiJavaScriptOptions();
+        $this->options = null != $options ? $options : new StiJavaScriptOptions();
     }
 }

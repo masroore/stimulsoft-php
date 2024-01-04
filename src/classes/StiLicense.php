@@ -32,13 +32,14 @@ class StiLicense
     public function getHtml()
     {
         $result = '';
-        if (!is_null($this->licenseKey) && strlen($this->licenseKey) > 0)
+        if (null !== $this->licenseKey && '' !== $this->licenseKey) {
             $result .= "Stimulsoft.Base.StiLicense.Key = '$this->licenseKey';\n";
-
-        else if (!is_null($this->licenseFile) && strlen($this->licenseFile) > 0)
+        } elseif (null !== $this->licenseFile && '' !== $this->licenseFile) {
             $result .= "Stimulsoft.Base.StiLicense.loadFromFile('$this->licenseFile');\n";
+        }
 
         $this->isHtmlRendered = true;
+
         return $result;
     }
 

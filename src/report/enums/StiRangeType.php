@@ -4,7 +4,7 @@ namespace Stimulsoft\Report;
 
 class StiRangeType
 {
-    const All = 'Stimulsoft.Report.StiRangeType.All';
-    const CurrentPage = 'Stimulsoft.Report.StiRangeType.CurrentPage';
-    const Pages = 'Stimulsoft.Report.StiRangeType.Pages';
+    public const All = 'Stimulsoft.Report.StiRangeType.All';
+    public const CurrentPage = 'Stimulsoft.Report.StiRangeType.CurrentPage';
+    public const Pages = 'Stimulsoft.Report.StiRangeType.Pages';
 }

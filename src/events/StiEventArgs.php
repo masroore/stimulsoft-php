@@ -13,11 +13,12 @@ class StiEventArgs
     /** For internal use only. */
     public function populateVars($obj)
     {
-        $className = get_class($this);
+        $className = static::class;
         $vars = get_class_vars($className);
         foreach ($vars as $name => $value) {
-            if (isset($obj->{$name}))
+            if (isset($obj->{$name})) {
                 $this->{$name} = $obj->{$name};
+            }
         }
     }
 }

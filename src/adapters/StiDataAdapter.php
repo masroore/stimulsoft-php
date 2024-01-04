@@ -22,21 +22,22 @@ class StiDataAdapter
     {
         $info = $this->connectionLink->errorInfo();
         $code = $info[0];
-        if (count($info) >= 3)
+        if (\count($info) >= 3) {
             $message = $info[2];
+        }
 
-        return $code == 0 ? StiResult::error($message) : StiResult::error("[$code] $message");
+        return 0 == $code ? StiResult::error($message) : StiResult::error("[$code] $message");
     }
 
     protected function connect()
     {
         try {
             $this->connectionLink = new \PDO($this->connectionInfo->dsn, $this->connectionInfo->userId, $this->connectionInfo->password);
-        }
-        catch (\PDOException $e) {
+        } catch (\PDOException $e) {
             $code = $e->getCode();
             $message = $e->getMessage();
-            return $code == 0 ? StiResult::error($message) : StiResult::error("[$code] $message");
+
+            return 0 == $code ? StiResult::error($message) : StiResult::error("[$code] $message");
         }
 
         return StiDataResult::success();
@@ -50,7 +51,10 @@ class StiDataAdapter
     public function test()
     {
         $result = $this->connect();
-        if ($result->success) $this->disconnect();
+        if ($result->success) {
+            $this->disconnect();
+        }
+
         return $result;
     }
 
@@ -59,13 +63,13 @@ class StiDataAdapter
         $this->connectionInfo = new StiConnectionInfo();
         $this->connectionString = trim($connectionString);
 
-        if (mb_strpos($this->connectionString, "$this->driverName:") !== false) {
+        if (false !== mb_strpos($this->connectionString, "$this->driverName:")) {
             $this->driverType = 'PDO';
 
-            $parameterNames = array(
+            $parameterNames = [
                 'userId' => ['uid', 'user', 'username', 'userid', 'user id'],
-                'password' => ['pwd', 'password']
-            );
+                'password' => ['pwd', 'password'],
+            ];
 
             return $this->parseParameters($parameterNames);
         }
@@ -88,15 +92,16 @@ class StiDataAdapter
 
             $unknown = true;
             foreach ($parameterNames as $key => $names) {
-                if (in_array($name, $names)) {
+                if (\in_array($name, $names)) {
                     $this->connectionInfo->{$key} = $value;
                     $unknown = false;
                     break;
                 }
             }
 
-            if ($unknown)
+            if ($unknown) {
                 $this->parseUnknownParameter($parameter, $name, $value);
+            }
         }
 
         return true;
@@ -104,9 +109,10 @@ class StiDataAdapter
 
     protected function parseUnknownParameter($parameter, $name, $value)
     {
-        if ($this->driverType == 'PDO' && !is_null($parameter) && mb_strlen($parameter) > 0) {
-            if (mb_strlen($this->connectionInfo->dsn) > 0)
+        if ('PDO' == $this->driverType && null !== $parameter && mb_strlen($parameter) > 0) {
+            if (mb_strlen($this->connectionInfo->dsn) > 0) {
                 $this->connectionInfo->dsn .= ';';
+            }
 
             $this->connectionInfo->dsn .= $parameter;
         }
@@ -124,25 +130,32 @@ class StiDataAdapter
 
     protected function detectType($value)
     {
-        if (empty($value))
+        if (empty($value)) {
             return 'string';
+        }
 
-        if (preg_match('~[^\x20-\x7E\t\r\n]~', $value) > 0)
+        if (preg_match('~[^\x20-\x7E\t\r\n]~', $value) > 0) {
             return 'array';
+        }
 
         if (is_numeric($value)) {
-            if (strpos($value, '.') !== false) return 'number';
+            if (str_contains($value, '.')) {
+                return 'number';
+            }
+
             return 'int';
         }
 
-        if (\DateTime::createFromFormat('Y-m-d H:i:s', $value) !== false ||
-            \DateTime::createFromFormat('Y-m-d', $value) !== false ||
-            \DateTime::createFromFormat('Y-M-d', $value) !== false ||
-            \DateTime::createFromFormat('H:i:s', $value) !== false)
+        if (false !== \DateTime::createFromFormat('Y-m-d H:i:s', $value)
+            || false !== \DateTime::createFromFormat('Y-m-d', $value)
+            || false !== \DateTime::createFromFormat('Y-M-d', $value)
+            || false !== \DateTime::createFromFormat('H:i:s', $value)) {
             return 'datetime';
+        }
 
-        if (is_string($value))
+        if (\is_string($value)) {
             return 'string';
+        }
 
         return 'array';
     }
@@ -151,8 +164,9 @@ class StiDataAdapter
     {
         $paramsString = '';
         foreach ($parameters as $name => $parameter) {
-            if (strlen($paramsString) > 0)
+            if ('' !== $paramsString) {
                 $paramsString .= ', ';
+            }
 
             $paramsString .= "@$name";
         }
@@ -164,11 +178,11 @@ class StiDataAdapter
     {
         $result = $this->connect();
         if ($result->success) {
-            $result->types = array();
-            $result->columns = array();
-            $result->rows = array();
+            $result->types = [];
+            $result->columns = [];
+            $result->rows = [];
 
-            $result = $this->driverType == 'PDO'
+            $result = 'PDO' == $this->driverType
                 ? $this->executePDO($queryString, $result)
                 : $this->executeNative($queryString, $result);
 
@@ -181,21 +195,22 @@ class StiDataAdapter
     protected function executePDO($queryString, $result)
     {
         $query = $this->connectionLink->query($queryString);
-        if (!$query)
+        if (!$query) {
             return $this->getLastErrorResult();
+        }
 
         $result->count = $query->columnCount();
 
-        for ($i = 0; $i < $result->count; $i++) {
+        for ($i = 0; $i < $result->count; ++$i) {
             $meta = $query->getColumnMeta($i);
             $result->columns[] = $meta['name'];
             $result->types[] = $this->parseType($meta);
         }
 
         while ($rowItem = $query->fetch()) {
-            $row = array();
-            for ($i = 0; $i < $result->count; $i++) {
-                $type = count($result->types) >= $i + 1 ? $result->types[$i] : 'string';
+            $row = [];
+            for ($i = 0; $i < $result->count; ++$i) {
+                $type = \count($result->types) >= $i + 1 ? $result->types[$i] : 'string';
                 $row[] = $this->getValue($type, $rowItem[$i]);
             }
             $result->rows[] = $row;
@@ -207,20 +222,25 @@ class StiDataAdapter
     protected function executePDOv2($queryString, $result)
     {
         $query = $this->connectionLink->query($queryString);
-        if (!$query)
+        if (!$query) {
             return $this->getLastErrorResult();
+        }
 
         $result->count = $query->columnCount();
 
         while ($rowItem = $query->fetch()) {
             $index = 0;
-            $row = array();
+            $row = [];
 
             foreach ($rowItem as $key => $value) {
-                if (is_string($key)) {
-                    $index++;
-                    if (count($result->columns) < $index) $result->columns[] = $key;
-                    if (count($result->types) < $index) $result->types[] = $this->detectType($value);
+                if (\is_string($key)) {
+                    ++$index;
+                    if (\count($result->columns) < $index) {
+                        $result->columns[] = $key;
+                    }
+                    if (\count($result->types) < $index) {
+                        $result->types[] = $this->detectType($value);
+                    }
                     $type = $result->types[$index - 1];
                     $row[] = $this->getValue($type, $value);
                 }
@@ -269,14 +289,16 @@ class StiDataAdapter
     {
         $result = '';
 
-        while (mb_strpos($query, '@') !== false) {
+        while (false !== mb_strpos($query, '@')) {
             $result .= mb_substr($query, 0, mb_strpos($query, '@'));
             $query = mb_substr($query, mb_strpos($query, '@') + 1);
 
             $parameterName = '';
-            while (strlen($query) > 0) {
+            while ('' !== $query) {
                 $char = mb_substr($query, 0, 1);
-                if (!preg_match('/[a-zA-Z0-9_-]/', $char)) break;
+                if (!preg_match('/[a-zA-Z0-9_-]/', $char)) {
+                    break;
+                }
 
                 $parameterName .= $char;
                 $query = mb_substr($query, 1);
@@ -287,15 +309,15 @@ class StiDataAdapter
                 if (strtolower($key) == strtolower($parameterName)) {
                     switch ($item->typeGroup) {
                         case 'number':
-                            $result .= floatval($item->value);
+                            $result .= (float) $item->value;
                             break;
 
                         case 'datetime':
-                            $result .= "'" . $item->value . "'";
+                            $result .= "'".$item->value."'";
                             break;
 
                         default:
-                            $result .= "'" . ($escape ? addcslashes($item->value, "\\\"'") : $item->value) . "'";
+                            $result .= "'".($escape ? addcslashes($item->value, "\\\"'") : $item->value)."'";
                             break;
                     }
 
@@ -303,10 +325,12 @@ class StiDataAdapter
                 }
             }
 
-            if (!$replaced) $result .= '@' . $parameterName;
+            if (!$replaced) {
+                $result .= '@'.$parameterName;
+            }
         }
 
-        return $result . $query;
+        return $result.$query;
     }
 
     public function __construct()

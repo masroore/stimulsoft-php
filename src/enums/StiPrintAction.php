@@ -4,7 +4,7 @@ namespace Stimulsoft;
 
 class StiPrintAction
 {
-    const PrintPdf = 'PrintPdf';
-    const PrintWithoutPreview = 'PrintWithoutPreview';
-    const PrintWithPreview = 'PrintWithPreview';
+    public const PrintPdf = 'PrintPdf';
+    public const PrintWithoutPreview = 'PrintWithoutPreview';
+    public const PrintWithPreview = 'PrintWithPreview';
 }

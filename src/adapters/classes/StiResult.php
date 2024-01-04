@@ -16,7 +16,7 @@ class StiResult
 
     public static function success($notice = null, $object = null)
     {
-        $result = new StiResult();
+        $result = new self();
         $result->success = true;
         $result->notice = $notice;
         $result->object = $object;
@@ -26,7 +26,7 @@ class StiResult
 
     public static function error($notice = null)
     {
-        $result = new StiResult();
+        $result = new self();
         $result->success = false;
         $result->notice = $notice;
 

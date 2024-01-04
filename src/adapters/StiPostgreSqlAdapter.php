@@ -14,39 +14,45 @@ class StiPostgreSqlAdapter extends StiDataAdapter
 
     protected function getLastErrorResult($message = 'An unknown error has occurred.')
     {
-        if ($this->driverType == 'PDO')
+        if ('PDO' == $this->driverType) {
             return parent::getLastErrorResult($message);
+        }
 
         $error = pg_last_error();
-        if ($error) $message = $error;
+        if ($error) {
+            $message = $error;
+        }
 
         return StiResult::error($message);
     }
 
     protected function connect()
     {
-        if ($this->driverType == 'PDO')
+        if ('PDO' == $this->driverType) {
             return parent::connect();
+        }
 
-        if (!function_exists('pg_connect'))
+        if (!\function_exists('pg_connect')) {
             return StiResult::error('PostgreSQL driver not found. Please configure your PHP server to work with PostgreSQL.');
+        }
 
         $connectionString =
-            "host='" . $this->connectionInfo->host . "' port='" . $this->connectionInfo->port . "' dbname='" . $this->connectionInfo->database .
-            "' user='" . $this->connectionInfo->userId . "' password='" . $this->connectionInfo->password .
-            "' options='--client_encoding=" . $this->connectionInfo->charset . "'";
+            "host='".$this->connectionInfo->host."' port='".$this->connectionInfo->port."' dbname='".$this->connectionInfo->database.
+            "' user='".$this->connectionInfo->userId."' password='".$this->connectionInfo->password.
+            "' options='--client_encoding=".$this->connectionInfo->charset."'";
         $this->connectionLink = pg_connect($connectionString);
-        if (!$this->connectionLink)
+        if (!$this->connectionLink) {
             return $this->getLastErrorResult();
+        }
 
         return StiDataResult::success();
     }
 
     protected function disconnect()
     {
-        if ($this->driverType == 'PDO')
+        if ('PDO' == $this->driverType) {
             parent::disconnect();
-        else if ($this->connectionLink) {
+        } elseif ($this->connectionLink) {
             pg_close($this->connectionLink);
             $this->connectionLink = null;
         }
@@ -54,62 +60,64 @@ class StiPostgreSqlAdapter extends StiDataAdapter
 
     public function parse($connectionString)
     {
-        if (parent::parse($connectionString))
+        if (parent::parse($connectionString)) {
             return true;
+        }
 
         $this->connectionInfo->port = 5432;
         $this->connectionInfo->charset = 'utf8';
 
-        $parameterNames = array(
+        $parameterNames = [
             'host' => ['server', 'host', 'location'],
             'port' => ['port'],
             'database' => ['database', 'data source', 'dbname'],
             'userId' => ['uid', 'user', 'username', 'userid', 'user id'],
             'password' => ['pwd', 'password'],
-            'charset' => ['charset']
-        );
+            'charset' => ['charset'],
+        ];
 
         return $this->parseParameters($parameterNames);
     }
 
     protected function parseType($meta)
     {
-        $type = strtolower($this->driverType == 'PDO' ? $meta['native_type'] : $meta);
-        if (substr($type, 0, 1) == '_')
+        $type = strtolower('PDO' == $this->driverType ? $meta['native_type'] : $meta);
+        if ('_' == substr($type, 0, 1)) {
             $type = 'array';
+        }
 
         switch ($type) {
-            case "int":
+            case 'int':
             case 'int2':
             case 'int4':
             case 'int8':
-            case "smallint":
-            case "bigint":
-            case "tinyint":
-            case "integer":
+            case 'smallint':
+            case 'bigint':
+            case 'tinyint':
+            case 'integer':
             case 'numeric':
-            case "uniqueidentifier":
+            case 'uniqueidentifier':
                 return 'int';
 
-            case "float":
+            case 'float':
             case 'float4':
             case 'float8':
-            case "real":
-            case "double":
-            case "decimal":
-            case "smallmoney":
-            case "money":
+            case 'real':
+            case 'double':
+            case 'decimal':
+            case 'smallmoney':
+            case 'money':
                 return 'number';
 
             case 'bool':
-            case "boolean":
+            case 'boolean':
                 return 'boolean';
 
-            case "abstime":
-            case "date":
-            case "datetime":
-            case "smalldatetime":
-            case "timestamp":
+            case 'abstime':
+            case 'date':
+            case 'datetime':
+            case 'smalldatetime':
+            case 'timestamp':
                 return 'datetime';
 
             case 'timetz':
@@ -129,8 +137,9 @@ class StiPostgreSqlAdapter extends StiDataAdapter
 
     protected function getValue($type, $value)
     {
-        if (is_null($value) || strlen($value) == 0)
+        if (null === $value || 0 == \strlen($value)) {
             return null;
+        }
 
         switch ($type) {
             case 'array':
@@ -139,30 +148,44 @@ class StiPostgreSqlAdapter extends StiDataAdapter
             case 'datetime':
                 $timestamp = strtotime($value);
                 $format = date("Y-m-d\TH:i:s.v", $timestamp);
-                if (strpos($format, '.v') > 0) $format = date("Y-m-d\TH:i:s.000", $timestamp);
+                if (strpos($format, '.v') > 0) {
+                    $format = date("Y-m-d\TH:i:s.000", $timestamp);
+                }
+
                 return $format;
 
             case 'datetimeoffset':
-                if (strlen($value) <= 15) {
+                if (\strlen($value) <= 15) {
                     $offset = substr($value, strpos($value, '+'));
-                    if (strlen($offset) == 3) $offset = $offset . ':00';
+                    if (3 == \strlen($offset)) {
+                        $offset .= ':00';
+                    }
                     $value = substr($value, 0, strpos($value, '+'));
-                    $value = '0001-01-01 ' . $value;
+                    $value = '0001-01-01 '.$value;
                     $timestamp = strtotime($value);
                     $format = date("Y-m-d\TH:i:s.v", $timestamp);
-                    if (strpos($format, '.v') > 0) $format = date("Y-m-d\TH:i:s.000", $timestamp);
-                    return $format . $offset;
+                    if (strpos($format, '.v') > 0) {
+                        $format = date("Y-m-d\TH:i:s.000", $timestamp);
+                    }
+
+                    return $format.$offset;
                 }
 
                 $timestamp = strtotime($value);
                 $format = gmdate("Y-m-d\TH:i:s.v\Z", $timestamp);
-                if (strpos($format, '.v') > 0) $format = gmdate("Y-m-d\TH:i:s.000\Z", $timestamp);
+                if (strpos($format, '.v') > 0) {
+                    $format = gmdate("Y-m-d\TH:i:s.000\Z", $timestamp);
+                }
+
                 return $format;
 
             case 'time':
                 $timestamp = strtotime($value);
-                $format = date("H:i:s.v", $timestamp);
-                if (strpos($format, '.v') > 0) $format = date("H:i:s.000", $timestamp);
+                $format = date('H:i:s.v', $timestamp);
+                if (strpos($format, '.v') > 0) {
+                    $format = date('H:i:s.000', $timestamp);
+                }
+
                 return $format;
         }
 
@@ -172,27 +195,29 @@ class StiPostgreSqlAdapter extends StiDataAdapter
     public function makeQuery($procedure, $parameters)
     {
         $paramsString = parent::makeQuery($procedure, $parameters);
+
         return "CALL $procedure ($paramsString)";
     }
 
     protected function executeNative($queryString, $result)
     {
         $query = pg_query($this->connectionLink, $queryString);
-        if (!$query)
+        if (!$query) {
             return $this->getLastErrorResult();
+        }
 
         $result->count = pg_num_fields($query);
 
-        for ($i = 0; $i < $result->count; $i++) {
+        for ($i = 0; $i < $result->count; ++$i) {
             $result->columns[] = pg_field_name($query, $i);
             $type = pg_field_type($query, $i);
             $result->types[] = $this->parseType($type);
         }
 
         while ($rowItem = pg_fetch_assoc($query)) {
-            $row = array();
+            $row = [];
             foreach ($rowItem as $value) {
-                $type = count($result->types) >= count($row) + 1 ? $result->types[count($row)] : 'string';
+                $type = \count($result->types) >= \count($row) + 1 ? $result->types[\count($row)] : 'string';
                 $row[] = $this->getValue($type, $value);
             }
             $result->rows[] = $row;

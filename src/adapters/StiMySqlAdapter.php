@@ -14,39 +14,44 @@ class StiMySqlAdapter extends StiDataAdapter
 
     protected function getLastErrorResult($message = 'An unknown error has occurred.')
     {
-        if ($this->driverType == 'PDO')
+        if ('PDO' == $this->driverType) {
             return parent::getLastErrorResult($message);
+        }
 
         $code = $this->connectionLink->errno;
-        if ($this->connectionLink->error)
+        if ($this->connectionLink->error) {
             $message = $this->connectionLink->error;
+        }
 
-        return $code == 0 ? StiResult::error($message) : StiResult::error("[$code] $message");
+        return 0 == $code ? StiResult::error($message) : StiResult::error("[$code] $message");
     }
 
     protected function connect()
     {
-        if ($this->driverType == 'PDO')
+        if ('PDO' == $this->driverType) {
             return parent::connect();
+        }
 
         $this->connectionLink = new \mysqli(
             $this->connectionInfo->host, $this->connectionInfo->userId, $this->connectionInfo->password,
             $this->connectionInfo->database, $this->connectionInfo->port);
 
-        if ($this->connectionLink->connect_error)
+        if ($this->connectionLink->connect_error) {
             return StiResult::error("[{$this->connectionLink->connect_errno}] {$this->connectionLink->connect_error}");
+        }
 
-        if (!$this->connectionLink->set_charset($this->connectionInfo->charset))
+        if (!$this->connectionLink->set_charset($this->connectionInfo->charset)) {
             return $this->getLastErrorResult();
+        }
 
         return StiDataResult::success();
     }
 
     protected function disconnect()
     {
-        if ($this->driverType == 'PDO')
+        if ('PDO' == $this->driverType) {
             parent::disconnect();
-        else if ($this->connectionLink) {
+        } elseif ($this->connectionLink) {
             $this->connectionLink->close();
             $this->connectionLink = null;
         }
@@ -54,20 +59,21 @@ class StiMySqlAdapter extends StiDataAdapter
 
     public function parse($connectionString)
     {
-        if (parent::parse($connectionString))
+        if (parent::parse($connectionString)) {
             return true;
+        }
 
         $this->connectionInfo->port = 3306;
         $this->connectionInfo->charset = 'utf8';
 
-        $parameterNames = array(
+        $parameterNames = [
             'host' => ['server', 'host', 'location'],
             'port' => ['port'],
             'database' => ['database', 'data source', 'dbname'],
             'userId' => ['uid', 'user', 'username', 'userid', 'user id'],
             'password' => ['pwd', 'password'],
-            'charset' => ['charset']
-        );
+            'charset' => ['charset'],
+        ];
 
         return $this->parseParameters($parameterNames);
     }
@@ -121,22 +127,22 @@ class StiMySqlAdapter extends StiDataAdapter
     private function isBinaryStringType($meta)
     {
         // BINARY_ENCODING = 63, see https://github.com/sidorares/node-mysql2/blob/ef283413607a5ee6643c238245f3ad4b533f5689/lib/constants/charsets.js#L64
-        return ($meta->flags & MYSQLI_BINARY_FLAG) && ($meta->charsetnr == 63);
+        return ($meta->flags & MYSQLI_BINARY_FLAG) && (63 == $meta->charsetnr);
     }
 
     protected function parseType($meta)
     {
         $binary = false;
 
-        if ($this->driverType == 'PDO') {
+        if ('PDO' == $this->driverType) {
             foreach ($meta['flags'] as $value) {
-                if ($value == 'blob')
+                if ('blob' == $value) {
                     $binary = true;
+                }
             }
             $type = $meta['native_type'];
             $length = $meta['len'];
-        }
-        else {
+        } else {
             $type = $this->getStringType($meta);
             $length = $meta->length;
         }
@@ -158,7 +164,7 @@ class StiMySqlAdapter extends StiDataAdapter
                 return 'number';
 
             case 'tiny':
-                return $length == 1 ? 'boolean' : 'int';
+                return 1 == $length ? 'boolean' : 'int';
 
             case 'string':
             case 'var_string':
@@ -183,8 +189,9 @@ class StiMySqlAdapter extends StiDataAdapter
 
     protected function getValue($type, $value)
     {
-        if (is_null($value) || strlen($value) == 0)
+        if (null === $value || 0 == \strlen($value)) {
             return null;
+        }
 
         switch ($type) {
             case 'array':
@@ -192,19 +199,29 @@ class StiMySqlAdapter extends StiDataAdapter
 
             case 'datetime':
                 // Replace invalid dates with NULL
-                if ($value == "0000-00-00 00:00:00") return null;
+                if ('0000-00-00 00:00:00' == $value) {
+                    return null;
+                }
                 $timestamp = strtotime($value);
                 $format = date("Y-m-d\TH:i:s.v", $timestamp);
-                if (strpos($format, '.v') > 0) $format = date("Y-m-d\TH:i:s.000", $timestamp);
+                if (strpos($format, '.v') > 0) {
+                    $format = date("Y-m-d\TH:i:s.000", $timestamp);
+                }
+
                 return $format;
 
             case 'time':
-                $hours = intval($value);
-                if ($hours < 0 || $hours > 23) return $value;
+                $hours = (int) $value;
+                if ($hours < 0 || $hours > 23) {
+                    return $value;
+                }
 
                 $timestamp = strtotime($value);
-                $format = date("H:i:s.v", $timestamp);
-                if (strpos($format, '.v') > 0) $format = date("H:i:s.000", $timestamp);
+                $format = date('H:i:s.v', $timestamp);
+                if (strpos($format, '.v') > 0) {
+                    $format = date('H:i:s.000', $timestamp);
+                }
+
                 return $format;
         }
 
@@ -214,14 +231,16 @@ class StiMySqlAdapter extends StiDataAdapter
     public function makeQuery($procedure, $parameters)
     {
         $paramsString = parent::makeQuery($procedure, $parameters);
+
         return "CALL $procedure ($paramsString)";
     }
 
     protected function executeNative($queryString, $result)
     {
         $query = $this->connectionLink->query($queryString);
-        if (!$query)
+        if (!$query) {
             return $this->getLastErrorResult();
+        }
 
         $result->count = $query->field_count;
 
@@ -231,12 +250,14 @@ class StiMySqlAdapter extends StiDataAdapter
         }
 
         if ($query->num_rows > 0) {
-            $isColumnsEmpty = count($result->columns) == 0;
+            $isColumnsEmpty = 0 == \count($result->columns);
             while ($rowItem = $isColumnsEmpty ? $query->fetch_assoc() : $query->fetch_row()) {
-                $row = array();
+                $row = [];
                 foreach ($rowItem as $key => $value) {
-                    if ($isColumnsEmpty && count($result->columns) < count($rowItem)) $result->columns[] = $key;
-                    $type = count($result->types) >= count($row) + 1 ? $result->types[count($row)] : 'string';
+                    if ($isColumnsEmpty && \count($result->columns) < \count($rowItem)) {
+                        $result->columns[] = $key;
+                    }
+                    $type = \count($result->types) >= \count($row) + 1 ? $result->types[\count($row)] : 'string';
                     $row[] = $this->getValue($type, $value);
                 }
                 $result->rows[] = $row;

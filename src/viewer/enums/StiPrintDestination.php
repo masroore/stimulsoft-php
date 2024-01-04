@@ -4,8 +4,8 @@ namespace Stimulsoft\Viewer;
 
 class StiPrintDestination
 {
-    const DefaultValue = 'Stimulsoft.Viewer.StiPrintDestination.Default';
-    const Pdf = 'Stimulsoft.Viewer.StiPrintDestination.Pdf';
-    const Direct = 'Stimulsoft.Viewer.StiPrintDestination.Direct';
-    const WithPreview = 'Stimulsoft.Viewer.StiPrintDestination.WithPreview';
+    public const DefaultValue = 'Stimulsoft.Viewer.StiPrintDestination.Default';
+    public const Pdf = 'Stimulsoft.Viewer.StiPrintDestination.Pdf';
+    public const Direct = 'Stimulsoft.Viewer.StiPrintDestination.Direct';
+    public const WithPreview = 'Stimulsoft.Viewer.StiPrintDestination.WithPreview';
 }

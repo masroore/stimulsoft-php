@@ -14,17 +14,20 @@ class StiPagesRange extends StiHtmlComponent
     public function getHtml()
     {
         $result = "let $this->id = new Stimulsoft.Report.StiPagesRange();\n";
-        if ($this->rangeType != StiRangeType::All) {
+        if (StiRangeType::All != $this->rangeType) {
             $result .= "$this->id.rangeType = $this->rangeType;\n";
 
-            if (!is_null($this->pageRanges) && strlen($this->pageRanges) > 0)
+            if (null !== $this->pageRanges && '' !== $this->pageRanges) {
                 $result .= "$this->id.pageRanges = '$this->pageRanges';\n";
+            }
 
-            if ($this->currentPage > 0)
+            if ($this->currentPage > 0) {
                 $result .= "$this->id.currentPage = $this->currentPage;\n";
+            }
         }
 
         $this->isHtmlRendered = true;
+
         return $result;
     }
 

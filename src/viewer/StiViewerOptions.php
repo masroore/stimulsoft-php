@@ -31,18 +31,20 @@ class StiViewerOptions extends StiComponentOptions
     /** Get the HTML representation of the component. */
     public function getHtml()
     {
-        if (strpos($this->property, '.') > 0)
+        if (strpos($this->property, '.') > 0) {
             return parent::getHtml();
+        }
 
         $result = '';
 
         $localizationPath = $this->getLocalizationPath($this->localization);
-        if ($localizationPath != null)
+        if (null != $localizationPath) {
             $result .= "Stimulsoft.Base.Localization.StiLocalization.setLocalizationFile('$localizationPath');\n";
+        }
 
         $result .= "let $this->property = new Stimulsoft.Viewer.StiViewerOptions();\n";
 
-        return $result . parent::getHtml();
+        return $result.parent::getHtml();
     }
 
     public function __construct($property = 'viewerOptions')

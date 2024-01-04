@@ -11,14 +11,14 @@ class StiDataResult extends StiResult
 
     public static function success($notice = null, $object = null)
     {
-        $result = new StiDataResult();
+        $result = new self();
         $result->success = true;
         $result->notice = $notice;
         $result->object = $object;
 
-        $result->types = array();
-        $result->columns = array();
-        $result->rows = array();
+        $result->types = [];
+        $result->columns = [];
+        $result->rows = [];
 
         return $result;
     }

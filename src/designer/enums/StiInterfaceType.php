@@ -4,7 +4,7 @@ namespace Stimulsoft\Designer;
 
 class StiInterfaceType
 {
-    const Auto = 'Stimulsoft.Designer.StiInterfaceType.Auto';
-    const Mouse = 'Stimulsoft.Designer.StiInterfaceType.Mouse';
-    const Touch = 'Stimulsoft.Designer.StiInterfaceType.Touch';
+    public const Auto = 'Stimulsoft.Designer.StiInterfaceType.Auto';
+    public const Mouse = 'Stimulsoft.Designer.StiInterfaceType.Mouse';
+    public const Touch = 'Stimulsoft.Designer.StiInterfaceType.Touch';
 }

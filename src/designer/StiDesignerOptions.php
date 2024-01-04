@@ -40,7 +40,7 @@ class StiDesignerOptions extends StiComponentOptions
     /** @var StiViewerOptions A class which controls settings of the preview window. */
     public $viewerOptions;
 
-    private $localizations = array();
+    private $localizations = [];
 
     /** Adds localization to the designer menu */
     public function addLocalization($path)
@@ -55,17 +55,19 @@ class StiDesignerOptions extends StiComponentOptions
 
         foreach ($this->localizations as $localization) {
             $localizationPath = $this->getLocalizationPath($localization);
-            if ($localizationPath != null)
+            if (null != $localizationPath) {
                 $result .= "Stimulsoft.Base.Localization.StiLocalization.addLocalizationFile('$localizationPath', true);\n";
+            }
         }
 
         $localizationPath = $this->getLocalizationPath($this->localization);
-        if ($localizationPath != null)
+        if (null != $localizationPath) {
             $result .= "Stimulsoft.Base.Localization.StiLocalization.setLocalizationFile('$localizationPath');\n";
+        }
 
         $result .= "let $this->property = new Stimulsoft.Designer.StiDesignerOptions();\n";
 
-        return $result . parent::getHtml();
+        return $result.parent::getHtml();
     }
 
     public function __construct($property = 'designerOptions')

@@ -2,8 +2,7 @@
 
 namespace Stimulsoft;
 
-//use PHPMailer\PHPMailer\PHPMailer;
-use BadMethodCallException;
+// use PHPMailer\PHPMailer\PHPMailer;
 use Stimulsoft\Adapters\StiDataAdapter;
 use Stimulsoft\Report\StiVariable;
 use Stimulsoft\Report\StiVariableRange;
@@ -49,18 +48,32 @@ class StiHandler extends StiDataHandler
     /** The event is invoked after exporting a report before sending it by Email. */
     public $onEmailReport;
 
-
     // Functions
 
     private function checkEventResult($event, $args)
     {
-        if (isset($args) && $args->sender == null) $args->sender = StiComponentType::Report;
-        if (isset($event)) $result = $event($args);
-        if (!isset($result)) $result = StiResult::success();
-        if ($result === true) return StiResult::success();
-        if ($result === false) return StiResult::error();
-        if (gettype($result) == 'string') return StiResult::error($result);
-        if (isset($args)) $result->object = $args;
+        if (isset($args) && null == $args->sender) {
+            $args->sender = StiComponentType::Report;
+        }
+        if (isset($event)) {
+            $result = $event($args);
+        }
+        if (!isset($result)) {
+            $result = StiResult::success();
+        }
+        if (true === $result) {
+            return StiResult::success();
+        }
+        if (false === $result) {
+            return StiResult::error();
+        }
+        if ('string' == \gettype($result)) {
+            return StiResult::error($result);
+        }
+        if (isset($args)) {
+            $result->object = $args;
+        }
+
         return $result;
     }
 
@@ -68,20 +81,25 @@ class StiHandler extends StiDataHandler
     {
         $arr = $settings->$param;
 
-        if ($arr != null && count($arr) > 0) {
-            if ($param == 'cc') $mail->clearCCs();
-            else $mail->clearBCCs();
+        if (null != $arr && \count($arr) > 0) {
+            if ('cc' == $param) {
+                $mail->clearCCs();
+            } else {
+                $mail->clearBCCs();
+            }
 
             foreach ($arr as $value) {
                 $name = mb_strpos($value, ' ') > 0 ? mb_substr($value, mb_strpos($value, ' ')) : '';
-                $address = !is_null($name) && strlen($name) > 0 ? mb_substr($value, 0, mb_strpos($value, ' ')) : $value;
+                $address = null !== $name && \strlen($name) > 0 ? mb_substr($value, 0, mb_strpos($value, ' ')) : $value;
 
-                if ($param == 'cc') $mail->addCC($address, $name);
-                else $mail->addBCC($address, $name);
+                if ('cc' == $param) {
+                    $mail->addCC($address, $name);
+                } else {
+                    $mail->addBCC($address, $name);
+                }
             }
         }
     }
-
 
     // Events
 
@@ -108,7 +126,7 @@ class StiHandler extends StiDataHandler
         $args = new StiVariablesEventArgs();
         $args->sender = $request->sender;
 
-        $args->variables = array();
+        $args->variables = [];
         if (isset($request->variables)) {
             foreach ($request->variables as $item) {
                 $request->variables[$item->name] = $item;
@@ -117,7 +135,7 @@ class StiHandler extends StiDataHandler
                 $variableObject->value = $item->value;
                 $variableObject->type = $item->type;
 
-                if (substr($item->type, -5) === 'Range') {
+                if ('Range' === substr($item->type, -5)) {
                     $variableObject->value = new StiVariableRange();
                     $variableObject->value->from = $item->value->from;
                     $variableObject->value->to = $item->value->to;
@@ -130,16 +148,18 @@ class StiHandler extends StiDataHandler
         $result = $this->checkEventResult($this->onPrepareVariables, $args);
 
         if (isset($result->object)) {
-            $variables = array();
+            $variables = [];
             foreach ($result->object->variables as $key => $item) {
                 // Send only changed or new values
-                if (!array_key_exists($key, $request->variables) ||
-                    $item->value != $request->variables[$key]->value ||
-                    substr($item->type, -5) === 'Range' && (
-                        $item->value->from != $request->variables[$key]->value->from ||
-                        $item->value->to != $request->variables[$key]->value->to)
+                if (!\array_key_exists($key, $request->variables)
+                    || $item->value != $request->variables[$key]->value
+                    || 'Range' === substr($item->type, -5) && (
+                        $item->value->from != $request->variables[$key]->value->from
+                        || $item->value->to != $request->variables[$key]->value->to)
                 ) {
-                    if (!is_object($item)) $item = (object)$item;
+                    if (!\is_object($item)) {
+                        $item = (object) $item;
+                    }
                     $item->name = $key;
                     $variables[] = $item;
                 }
@@ -166,6 +186,7 @@ class StiHandler extends StiDataHandler
     {
         $args = new StiReportEventArgs();
         $args->sender = $request->sender;
+
         return $this->checkEventResult($this->onOpenReport, $args);
     }
 
@@ -190,9 +211,9 @@ class StiHandler extends StiDataHandler
         $args = new StiExportEventArgs();
         $args->populateVars($request);
 
-        $args->action = $args->action == null ? StiExportAction::PrintReport : $args->action;
-        $args->format = $args->printAction == StiPrintAction::PrintPdf ? StiExportFormat::Pdf : StiExportFormat::Html;
-        $args->formatName = $args->printAction == StiPrintAction::PrintPdf ? 'Pdf' : 'Html';
+        $args->action = null == $args->action ? StiExportAction::PrintReport : $args->action;
+        $args->format = StiPrintAction::PrintPdf == $args->printAction ? StiExportFormat::Pdf : StiExportFormat::Html;
+        $args->formatName = StiPrintAction::PrintPdf == $args->printAction ? 'Pdf' : 'Html';
 
         return $this->checkEventResult($this->onPrintReport, $args);
     }
@@ -214,7 +235,7 @@ class StiHandler extends StiDataHandler
     {
         $args = new StiExportEventArgs();
         $args->populateVars($request);
-        $args->action = $args->action == null ? StiExportAction::ExportReport : $args->action;
+        $args->action = null == $args->action ? StiExportAction::ExportReport : $args->action;
         $args->fileExtension = StiExportFormat::getFileExtension($request->format);
 
         return $this->checkEventResult($this->onEndExportReport, $args);
@@ -222,7 +243,7 @@ class StiHandler extends StiDataHandler
 
     private function invokeEmailReport($request)
     {
-        throw new BadMethodCallException();
+        throw new \BadMethodCallException();
         /*
         $settings = new StiEmailSettings();
         $settings->to = $request->settings->email;
@@ -306,26 +327,32 @@ class StiHandler extends StiDataHandler
             switch ($request->event) {
                 case StiEventType::BeginProcessData:
                     $dataAdapter = StiDataAdapter::getDataAdapter($request->database);
-                    if ($dataAdapter == null) {
+                    if (null == $dataAdapter) {
                         $result = StiResult::error("Unknown database type [$request->database]");
                         break;
                     }
 
                     $result = $this->invokeBeginProcessData($request);
-                    if (!$result->success) break;
+                    if (!$result->success) {
+                        break;
+                    }
 
                     $request->connectionString = $result->object->connectionString;
                     $request->queryString = $result->object->queryString;
                     $request->parameters = $result->object->parameters;
 
                     $result = $this->getDataAdapterResult($dataAdapter, $request);
-                    if (!$result->success) break;
+                    if (!$result->success) {
+                        break;
+                    }
 
                     /** @var StiDataResult $result */
                     $result = $this->invokeEndProcessData($request, $result);
                     $result->adapterVersion = $dataAdapter->version;
                     $result->checkVersion = $dataAdapter->checkVersion;
-                    if (!$result->success) break;
+                    if (!$result->success) {
+                        break;
+                    }
 
                     if (isset($result->object) && isset($result->object->result)) {
                         /** @var StiResult $result */
@@ -378,13 +405,14 @@ class StiHandler extends StiDataHandler
         }
 
         $result->handlerVersion = $this->version;
-        if ($request->event != StiEventType::BeginProcessData) {
+        if (StiEventType::BeginProcessData != $request->event) {
             unset($result->adapterVersion);
             unset($result->checkVersion);
         }
 
-        if ($response)
+        if ($response) {
             StiResponse::json($result);
+        }
 
         return $result;
     }
@@ -392,10 +420,10 @@ class StiHandler extends StiDataHandler
     /** Get the HTML representation of the component. */
     public function getHtml()
     {
-        $csrf_token = function_exists('csrf_token') ? csrf_token() : null;
+        $csrf_token = \function_exists('csrf_token') ? csrf_token() : null;
         $databases = json_encode(StiDatabaseType::getTypes());
 
-        $result = /** @lang JavaScript */
+        $result = /* @lang JavaScript */
             "StiHelper.prototype.process = function (args, callback) {
                 if (args) {
                     if (args.event === 'BeginProcessData' || args.event === 'EndProcessData') {
@@ -436,8 +464,8 @@ class StiHandler extends StiDataHandler
                     request.open('post', this.url, true);
                     request.setRequestHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
                     request.setRequestHeader('Cache-Control', 'max-age=0');
-                    request.setRequestHeader('Pragma', 'no-cache');" . ($csrf_token ? "
-                    request.setRequestHeader('X-CSRF-TOKEN', '$csrf_token');" : '') . "
+                    request.setRequestHeader('Pragma', 'no-cache');".($csrf_token ? "
+                    request.setRequestHeader('X-CSRF-TOKEN', '$csrf_token');" : '')."
                     request.timeout = this.timeout * 1000;
                     request.onload = function () {
                         if (request.status === 200) {
@@ -502,17 +530,21 @@ class StiHandler extends StiDataHandler
             jsHelper = typeof jsHelper !== 'undefined' ? jsHelper : Stimulsoft.Helper;
             ";
 
-        if (!$this->encryptData)
+        if (!$this->encryptData) {
             $result .= "StiOptions.WebServer.encryptData = false;\n";
+        }
 
-        if (!$this->escapeQueryParameters)
+        if (!$this->escapeQueryParameters) {
             $result .= "StiOptions.WebServer.escapeQueryParameters = false;\n";
+        }
 
-        if ($this->passQueryParametersToReport)
+        if ($this->passQueryParametersToReport) {
             $result .= "StiOptions.WebServer.passQueryParametersToReport = true;\n";
+        }
 
-        if (!$this->license->isHtmlRendered)
+        if (!$this->license->isHtmlRendered) {
             $result .= $this->license->getHtml();
+        }
 
         return $result;
     }

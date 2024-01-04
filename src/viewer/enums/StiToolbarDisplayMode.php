@@ -4,6 +4,6 @@ namespace Stimulsoft\Viewer;
 
 class StiToolbarDisplayMode
 {
-    const Simple = 'Stimulsoft.Viewer.StiToolbarDisplayMode.Simple';
-    const Separated = 'Stimulsoft.Viewer.StiToolbarDisplayMode.Separated';
+    public const Simple = 'Stimulsoft.Viewer.StiToolbarDisplayMode.Simple';
+    public const Separated = 'Stimulsoft.Viewer.StiToolbarDisplayMode.Separated';
 }

@@ -21,14 +21,15 @@ class StiRequest extends StiDataRequest
 
     protected function checkRequestParams($obj)
     {
-        if (!isset($obj->event) && isset($obj->command) &&
-                ($obj->command == StiDataCommand::TestConnection || $obj->command == StiDataCommand::RetrieveSchema ||
-                $obj->command == StiDataCommand::Execute || $obj->command == StiDataCommand::ExecuteQuery))
+        if (!isset($obj->event) && isset($obj->command)
+                && (StiDataCommand::TestConnection == $obj->command || StiDataCommand::RetrieveSchema == $obj->command
+                || StiDataCommand::Execute == $obj->command || StiDataCommand::ExecuteQuery == $obj->command)) {
             $this->event = StiEventType::BeginProcessData;
+        }
 
         if (isset($obj->report)) {
             $this->report = $obj->report;
-            $this->reportJson = json_encode($this->report, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+            $this->reportJson = json_encode($this->report, \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE);
         }
 
         return StiResult::success(null, $this);

@@ -4,8 +4,8 @@ namespace Stimulsoft\Viewer;
 
 class StiHtmlExportMode
 {
-    const Span = 'Stimulsoft.Report.Export.StiHtmlExportMode.Span';
-    const Div = 'Stimulsoft.Report.Export.StiHtmlExportMode.Div';
-    const Table = 'Stimulsoft.Report.Export.StiHtmlExportMode.Table';
-    const FromReport = 'Stimulsoft.Report.Export.StiHtmlExportMode.FromReport';
+    public const Span = 'Stimulsoft.Report.Export.StiHtmlExportMode.Span';
+    public const Div = 'Stimulsoft.Report.Export.StiHtmlExportMode.Div';
+    public const Table = 'Stimulsoft.Report.Export.StiHtmlExportMode.Table';
+    public const FromReport = 'Stimulsoft.Report.Export.StiHtmlExportMode.FromReport';
 }

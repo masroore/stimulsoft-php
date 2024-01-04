@@ -8,7 +8,7 @@ use Stimulsoft\StiComponentOptions;
 class StiToolbarOptions extends StiComponentOptions
 {
     protected $enums = [
-        'displayMode', 'alignment', 'printDestination', 'viewMode', 'zoom', 'showMenuMode'
+        'displayMode', 'alignment', 'printDestination', 'viewMode', 'zoom', 'showMenuMode',
     ];
 
     /** Gets or sets a value which indicates that toolbar will be shown in the viewer. */

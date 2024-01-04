@@ -4,7 +4,7 @@ namespace Stimulsoft\Viewer;
 
 class StiChartRenderType
 {
-    const Image = 'Stimulsoft.Viewer.StiChartRenderType.Image';
-    const Vector = 'Stimulsoft.Viewer.StiChartRenderType.Vector';
-    const AnimatedVector = 'Stimulsoft.Viewer.StiChartRenderType.AnimatedVector';
+    public const Image = 'Stimulsoft.Viewer.StiChartRenderType.Image';
+    public const Vector = 'Stimulsoft.Viewer.StiChartRenderType.Vector';
+    public const AnimatedVector = 'Stimulsoft.Viewer.StiChartRenderType.AnimatedVector';
 }

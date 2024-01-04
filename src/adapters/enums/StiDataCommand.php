@@ -4,9 +4,9 @@ namespace Stimulsoft;
 
 class StiDataCommand
 {
-    const GetSupportedAdapters = 'GetSupportedAdapters';
-    const TestConnection = 'TestConnection';
-    const RetrieveSchema = 'RetrieveSchema';
-    const Execute = 'Execute';
-    const ExecuteQuery = 'ExecuteQuery';
+    public const GetSupportedAdapters = 'GetSupportedAdapters';
+    public const TestConnection = 'TestConnection';
+    public const RetrieveSchema = 'RetrieveSchema';
+    public const Execute = 'Execute';
+    public const ExecuteQuery = 'ExecuteQuery';
 }

@@ -4,7 +4,7 @@ namespace Stimulsoft;
 
 class StiComponentType
 {
-    const Report = 'Report';
-    const Viewer = 'Viewer';
-    const Designer = 'Designer';
+    public const Report = 'Report';
+    public const Viewer = 'Viewer';
+    public const Designer = 'Designer';
 }

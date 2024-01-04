@@ -16,11 +16,12 @@ class StiDataRequest
 
     private function populateVars($obj)
     {
-        $className = get_class($this);
+        $className = static::class;
         $vars = get_class_vars($className);
         foreach ($vars as $name => $value) {
-            if (isset($obj->{$name}))
+            if (isset($obj->{$name})) {
                 $this->{$name} = $obj->{$name};
+            }
         }
     }
 
@@ -28,16 +29,17 @@ class StiDataRequest
     {
         $input = file_get_contents('php://input');
 
-        if (!is_null($input) && strlen($input) > 0 && mb_substr($input, 0, 1) != '{') {
+        if (null !== $input && '' !== $input && '{' != mb_substr($input, 0, 1)) {
             $input = base64_decode(str_rot13($input));
             $this->encode = true;
         }
 
         $obj = json_decode($input);
-        if ($obj == null) {
-            $message = 'JSON parser error #' . json_last_error();
-            if (function_exists('json_last_error_msg'))
-                $message .= ' (' . json_last_error_msg() . ')';
+        if (null == $obj) {
+            $message = 'JSON parser error #'.json_last_error();
+            if (\function_exists('json_last_error_msg')) {
+                $message .= ' ('.json_last_error_msg().')';
+            }
 
             return StiResult::error($message);
         }
@@ -49,16 +51,18 @@ class StiDataRequest
 
     protected function checkRequestParams($obj)
     {
-        if (isset($obj->command))
+        if (isset($obj->command)) {
             $this->command = $obj->command;
+        }
 
         $reflectionClass = new \ReflectionClass('\Stimulsoft\StiDataCommand');
         $commands = $reflectionClass->getConstants();
         $values = array_values($commands);
 
-        if (in_array($this->command, $values))
+        if (\in_array($this->command, $values)) {
             return StiResult::success(null, $this);
+        }
 
-        return StiResult::error('Unknown command [' . $this->command . ']');
+        return StiResult::error('Unknown command ['.$this->command.']');
     }
 }

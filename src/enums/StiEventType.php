@@ -4,14 +4,14 @@ namespace Stimulsoft;
 
 class StiEventType
 {
-    const PrepareVariables = "PrepareVariables";
-    const BeginProcessData = "BeginProcessData";
-    const CreateReport = "CreateReport";
-    const OpenReport = "OpenReport";
-    const SaveReport = "SaveReport";
-    const SaveAsReport = "SaveAsReport";
-    const PrintReport = "PrintReport";
-    const BeginExportReport = "BeginExportReport";
-    const EndExportReport = "EndExportReport";
-    const EmailReport = "EmailReport";
+    public const PrepareVariables = 'PrepareVariables';
+    public const BeginProcessData = 'BeginProcessData';
+    public const CreateReport = 'CreateReport';
+    public const OpenReport = 'OpenReport';
+    public const SaveReport = 'SaveReport';
+    public const SaveAsReport = 'SaveAsReport';
+    public const PrintReport = 'PrintReport';
+    public const BeginExportReport = 'BeginExportReport';
+    public const EndExportReport = 'EndExportReport';
+    public const EmailReport = 'EmailReport';
 }

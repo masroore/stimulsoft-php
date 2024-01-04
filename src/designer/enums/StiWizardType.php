@@ -4,11 +4,11 @@ namespace Stimulsoft\Designer;
 
 class StiWizardType
 {
-    const None = 'Stimulsoft.Designer.StiWizardType.None';
-    const StandardReport = 'Stimulsoft.Designer.StiWizardType.StandardReport';
-    const MasterDetailReport = 'Stimulsoft.Designer.StiWizardType.MasterDetailReport';
-    const LabelReport = 'Stimulsoft.Designer.StiWizardType.LabelReport';
-    const InvoicesReport = 'Stimulsoft.Designer.StiWizardType.InvoicesReport';
-    const OrdersReport = 'Stimulsoft.Designer.StiWizardType.OrdersReport';
-    const QuotationReport = 'Stimulsoft.Designer.StiWizardType.QuotationReport';
+    public const None = 'Stimulsoft.Designer.StiWizardType.None';
+    public const StandardReport = 'Stimulsoft.Designer.StiWizardType.StandardReport';
+    public const MasterDetailReport = 'Stimulsoft.Designer.StiWizardType.MasterDetailReport';
+    public const LabelReport = 'Stimulsoft.Designer.StiWizardType.LabelReport';
+    public const InvoicesReport = 'Stimulsoft.Designer.StiWizardType.InvoicesReport';
+    public const OrdersReport = 'Stimulsoft.Designer.StiWizardType.OrdersReport';
+    public const QuotationReport = 'Stimulsoft.Designer.StiWizardType.QuotationReport';
 }

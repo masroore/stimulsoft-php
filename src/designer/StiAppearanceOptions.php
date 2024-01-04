@@ -9,7 +9,7 @@ class StiAppearanceOptions extends StiComponentOptions
 {
     protected $enums = [
         'defaultUnit', 'interfaceType', 'propertiesGridPosition', 'datePickerFirstDayOfWeek',
-        'wizardTypeRunningAfterLoad', 'zoom', 'theme'
+        'wizardTypeRunningAfterLoad', 'zoom', 'theme',
     ];
 
     /** Gets or sets a default value of unit in the designer. */

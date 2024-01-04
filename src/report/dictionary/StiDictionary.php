@@ -26,6 +26,6 @@ class StiDictionary extends StiHtmlComponent
     public function __construct(StiReport $report)
     {
         $this->report = $report;
-        $this->variables = array();
+        $this->variables = [];
     }
 }

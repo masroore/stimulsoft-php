@@ -24,10 +24,11 @@ class StiHtmlComponent
                 break;
         }
 
-        $eventValue = $this->{$event} === true ? '' : 'if (typeof ' . $this->{$event} . ' === "function") ' . $this->{$event} . '(args); ';
+        $eventValue = true === $this->{$event} ? '' : 'if (typeof '.$this->{$event}.' === "function") '.$this->{$event}.'(args); ';
         $callbackValue = $callback ? ', callback' : '';
         $preventValue = $prevent ? 'args.preventDefault = true; ' : '';
         $processValue = $process ? "Stimulsoft.Helper.process(args$callbackValue); " : ($callback ? 'callback(); ' : '');
+
         return "$property.$event = function (args$callbackValue) { {$preventValue}{$eventValue}{$processValue}}\n";
     }
 

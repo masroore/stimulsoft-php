@@ -9,7 +9,7 @@ class StiAppearanceOptions extends StiComponentOptions
 {
     protected $enums = [
         'pageAlignment', 'parametersPanelPosition', 'interfaceType', 'chartRenderType', 'reportDisplayMode',
-        'datePickerFirstDayOfWeek', 'theme'
+        'datePickerFirstDayOfWeek', 'theme',
     ];
 
     /** Gets or sets the background color of the viewer. */

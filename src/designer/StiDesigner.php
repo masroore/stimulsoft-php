@@ -45,48 +45,59 @@ class StiDesigner extends StiHtmlComponent
     {
         $result = '';
 
-        if ($this->options instanceof StiDesignerOptions && !$this->options->isHtmlRendered)
+        if ($this->options instanceof StiDesignerOptions && !$this->options->isHtmlRendered) {
             $result .= $this->options->getHtml();
+        }
 
         $optionsProperty = $this->options instanceof StiDesignerOptions ? $this->options->property : 'null';
-        $designerProperty = $this->id == 'StiDesigner' ? 'designer' : $this->id;
+        $designerProperty = 'StiDesigner' == $this->id ? 'designer' : $this->id;
         $result .= "let $designerProperty = new Stimulsoft.Designer.StiDesigner($optionsProperty, '$this->id', false);\n";
 
-        if ($this->onPrepareVariables)
+        if ($this->onPrepareVariables) {
             $result .= $this->getEventHtml('onPrepareVariables', true);
+        }
 
-        if ($this->onBeginProcessData)
+        if ($this->onBeginProcessData) {
             $result .= $this->getEventHtml('onBeginProcessData', true);
+        }
 
-        if ($this->onEndProcessData)
+        if ($this->onEndProcessData) {
             $result .= $this->getEventHtml('onEndProcessData');
+        }
 
-        if ($this->onCreateReport)
+        if ($this->onCreateReport) {
             $result .= $this->getEventHtml('onCreateReport', true);
+        }
 
-        if ($this->onOpenReport)
+        if ($this->onOpenReport) {
             $result .= $this->getEventHtml('onOpenReport');
+        }
 
-        if ($this->onSaveReport)
+        if ($this->onSaveReport) {
             $result .= $this->getEventHtml('onSaveReport', false, true);
+        }
 
-        if ($this->onSaveAsReport)
+        if ($this->onSaveAsReport) {
             $result .= $this->getEventHtml('onSaveAsReport', true);
+        }
 
-        if ($this->onPreviewReport)
+        if ($this->onPreviewReport) {
             $result .= $this->getEventHtml('onPreviewReport', true, false, false);
+        }
 
-        if ($this->onExit)
+        if ($this->onExit) {
             $result .= $this->getEventHtml('onExit', false, false, false);
+        }
 
         if ($this->report instanceof StiReport) {
-            if (!$this->report->isHtmlRendered)
+            if (!$this->report->isHtmlRendered) {
                 $result .= $this->report->getHtml();
+            }
 
             $result .= "$designerProperty.report = {$this->report->id};\n";
         }
 
-        $result .= "$designerProperty.renderHtml(" . (!is_null($element) && strlen($element) > 0 ? "'$element'" : '') . ");\n";
+        $result .= "$designerProperty.renderHtml(".(null !== $element && \strlen($element) > 0 ? "'$element'" : '').");\n";
 
         return $result;
     }
@@ -100,6 +111,6 @@ class StiDesigner extends StiHtmlComponent
     public function __construct($options = null, $id = 'StiDesigner')
     {
         $this->options = $options;
-        $this->id = !is_null($id) && strlen($id) > 0 ? $id : 'StiDesigner';
+        $this->id = null !== $id && \strlen($id) > 0 ? $id : 'StiDesigner';
     }
 }
