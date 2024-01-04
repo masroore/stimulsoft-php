@@ -1,9 +1,4 @@
-/*
-Stimulsoft.Reports.JS
-Version: 2023.1.1
-Build date: 2022.12.07
-License: https://www.stimulsoft.com/en/licensing/reports
-*/
+
 export namespace Stimulsoft.System {
     class Activator {
         static createInstance(type: Type): any;

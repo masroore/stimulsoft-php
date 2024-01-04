@@ -1,4 +1,4 @@
-# Stimulsoft Reports.PHP
+# Reports.PHP
 
 #### Stimulsoft Reports.PHP is a reporting tool designed to create, edit and view reports in the Internet using a client-server technology. The PHP script works on the server side and controls the report generation. The JavaScript report engine works on the client side and provides a universal mechanism for reports generation almost on any client. Fast and powerful report engine, rich and intuitive interface, deployment and licensing.
 
@@ -56,7 +56,3 @@ Create and render the component in the `<script>` section of the page:
 ?>
 </script>
 ```
-
-# Useful links:
-
-[License](LICENSE.md)
