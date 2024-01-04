@@ -43,9 +43,13 @@ class StiJavaScript
 
         $result = '';
         foreach ($scripts as $name) {
+            /*
             $product = strpos($name, 'dashboards') > 0 ? 'dashboards-php' : 'reports-php';
-            $root = $this->useRelativeUrls ? '' : '/';
+            $root = $this->useRelativeUrls ? 'scripts/' : '/scripts/';
             $result .= "<script src=\"{$root}$name\" type=\"text/javascript\"></script>\n";
+            */
+            $path = asset("scripts/{$name}");
+            $result .= "<script src=\"$path\" type=\"text/javascript\"></script>\n";
         }
 
         return $result;
