@@ -7,11 +7,9 @@ use Stimulsoft\StiHtmlComponent;
 
 class StiViewer extends StiHtmlComponent
 {
-    /** @var StiViewerOptions */
-    public $options;
+    public ?StiViewerOptions $options = null;
 
-    /** @var StiReport */
-    public $report;
+    public ?StiReport $report = null;
 
     /** The event is invoked before rendering a report after preparing report variables. */
     public $onPrepareVariables;
@@ -44,7 +42,7 @@ class StiViewer extends StiHtmlComponent
     public $onDesignReport;
 
     /** Get the HTML representation of the component. */
-    public function getHtml($element = null)
+    public function getHtml(?string $element = null): string
     {
         $result = '';
 
@@ -106,7 +104,7 @@ class StiViewer extends StiHtmlComponent
     }
 
     /** Output of the HTML representation of the component. */
-    public function renderHtml($element = null)
+    public function renderHtml($element = null): void
     {
         echo $this->getHtml($element);
     }

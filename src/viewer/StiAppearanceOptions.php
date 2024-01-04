@@ -7,43 +7,43 @@ use Stimulsoft\StiComponentOptions;
 /** A class which controls settings of the viewer appearance. */
 class StiAppearanceOptions extends StiComponentOptions
 {
-    protected $enums = [
+    protected array $enums = [
         'pageAlignment', 'parametersPanelPosition', 'interfaceType', 'chartRenderType', 'reportDisplayMode',
         'datePickerFirstDayOfWeek', 'theme',
     ];
 
     /** Gets or sets the background color of the viewer. */
-    public $backgroundColor = 'white';
+    public string $backgroundColor = 'white';
 
     /** Gets or sets a color of the report page border. */
-    public $pageBorderColor = 'gray';
+    public string $pageBorderColor = 'gray';
 
     /** Gets or sets a value which controls of output objects in the right to left mode. */
-    public $rightToLeft = false;
+    public bool $rightToLeft = false;
 
     /** Gets or sets a value which indicates which indicates that the viewer is displayed in full screen mode. */
-    public $fullScreenMode = false;
+    public bool $fullScreenMode = false;
 
     /** Gets or sets a value which indicates that the viewer will show the report area with scrollbars. */
-    public $scrollbarsMode = false;
+    public bool $scrollbarsMode = false;
 
     /** Gets or sets a browser window to open links from the report. */
-    public $openLinksWindow = '_blank';
+    public string $openLinksWindow = '_blank';
 
     /** Gets or sets a browser window to open the exported report. */
-    public $openExportedReportWindow = '_blank';
+    public string $openExportedReportWindow = '_blank';
 
     /** Gets or sets a value which indicates that show or hide tooltips. */
-    public $showTooltips = true;
+    public bool $showTooltips = true;
 
     /** Gets or sets a value which indicates that show or hide the help link in tooltips. */
-    public $showTooltipsHelp = true;
+    public bool $showTooltipsHelp = true;
 
     /** Gets or sets a value which indicates that show or hide the help button in dialogs. */
-    public $showDialogsHelp = true;
+    public bool $showDialogsHelp = true;
 
     /** Gets or sets the alignment of the viewer page. */
-    public $pageAlignment = StiContentAlignment::DefaultValue;
+    public string $pageAlignment = StiContentAlignment::DefaultValue;
 
     /** Gets or sets a value which indicates that the shadow of the page will be displayed in the viewer. */
     public $showPageShadow = false;

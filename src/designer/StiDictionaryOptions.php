@@ -7,7 +7,7 @@ use Stimulsoft\StiComponentOptions;
 /** A class which controls settings of the dictionary. */
 class StiDictionaryOptions extends StiComponentOptions
 {
-    protected $enums = [
+    protected array $enums = [
         'useAliases', 'newReportDictionary', 'dataSourcesPermissions', 'dataConnectionsPermissions', 'dataColumnsPermissions',
         'dataRelationsPermissions', 'businessObjectsPermissions', 'variablesPermissions', 'resourcesPermissions',
     ];

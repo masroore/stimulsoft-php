@@ -4,15 +4,15 @@ namespace Stimulsoft;
 
 class StiJavaScriptOptions
 {
-    public $reports = true;
+    public bool $reports = true;
 
-    public $reportsChart = true;
+    public bool $reportsChart = true;
 
-    public $reportsExport = true;
+    public bool $reportsExport = true;
 
-    public $reportsImportXlsx = true;
+    public bool $reportsImportXlsx = true;
 
-    public $reportsMaps = true;
+    public bool $reportsMaps = true;
 
-    public $blocklyEditor = true;
+    public bool $blocklyEditor = true;
 }

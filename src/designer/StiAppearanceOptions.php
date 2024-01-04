@@ -7,7 +7,7 @@ use Stimulsoft\StiComponentOptions;
 /** A class which controls settings of the designer appearance. */
 class StiAppearanceOptions extends StiComponentOptions
 {
-    protected $enums = [
+    protected array $enums = [
         'defaultUnit', 'interfaceType', 'propertiesGridPosition', 'datePickerFirstDayOfWeek',
         'wizardTypeRunningAfterLoad', 'zoom', 'theme',
     ];

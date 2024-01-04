@@ -4,21 +4,21 @@ namespace Stimulsoft;
 
 class StiComponentOptions
 {
-    public $property;
+    public string $property;
 
-    public $isHtmlRendered = false;
+    public bool $isHtmlRendered = false;
 
-    protected $enums = [];
+    protected array $enums = [];
 
-    protected $ignore = ['ignore', 'enums', 'property', 'localization'];
+    protected array $ignore = ['ignore', 'enums', 'property', 'localization'];
 
-    protected function getLocalizationPath($localization)
+    protected function getLocalizationPath(?string $localization): ?string
     {
         if ($localization === null || \strlen($localization) == 0) {
             return null;
         }
 
-        if (\strlen($localization) < 5 || substr($localization, -4) != '.xml') {
+        if (\strlen($localization) < 5 || ! str_ends_with($localization, '.xml')) {
             $localization .= '.xml';
         }
 
@@ -29,7 +29,7 @@ class StiComponentOptions
         return $localization;
     }
 
-    private function getColorValue($value)
+    private function getColorValue($value): string
     {
         if ($value == null || \strlen($value) == 0) {
             return 'Stimulsoft.System.Drawing.Color.transparent';
@@ -45,7 +45,7 @@ class StiComponentOptions
     }
 
     /** Get the HTML representation of the component. */
-    public function getHtml()
+    public function getHtml(): string
     {
         $result = '';
         $className = static::class;
@@ -76,12 +76,12 @@ class StiComponentOptions
     }
 
     /** Output of the HTML representation of the component. */
-    public function renderHtml()
+    public function renderHtml(): void
     {
         echo $this->getHtml();
     }
 
-    public function __construct($property = '')
+    public function __construct(string $property = '')
     {
         $this->property = $property;
     }

@@ -2,22 +2,29 @@
 
 namespace Stimulsoft;
 
-// use PHPMailer\PHPMailer\PHPMailer;
+use BadMethodCallException;
 use Stimulsoft\Adapters\StiDataAdapter;
 use Stimulsoft\Report\StiVariable;
 use Stimulsoft\Report\StiVariableRange;
 
+use function array_key_exists;
+use function count;
+use function function_exists;
+use function gettype;
+use function is_object;
+use function strlen;
+
 class StiHandler extends StiDataHandler
 {
-    public $options;
+    public StiHandlerOptions $options;
 
-    public $license;
+    public StiLicense $license;
 
-    public $encryptData = true;
+    public bool $encryptData = true;
 
-    public $escapeQueryParameters = true;
+    public bool $escapeQueryParameters = true;
 
-    public $passQueryParametersToReport = false;
+    public bool $passQueryParametersToReport = false;
 
     /** The event is invoked before data request, which needed to render a report. */
     public $onBeginProcessData;
@@ -71,7 +78,7 @@ class StiHandler extends StiDataHandler
         if ($result === false) {
             return StiResult::error();
         }
-        if (\gettype($result) == 'string') {
+        if (gettype($result) == 'string') {
             return StiResult::error($result);
         }
         if (isset($args)) {
@@ -85,7 +92,7 @@ class StiHandler extends StiDataHandler
     {
         $arr = $settings->$param;
 
-        if ($arr != null && \count($arr) > 0) {
+        if ($arr != null && count($arr) > 0) {
             if ($param == 'cc') {
                 $mail->clearCCs();
             } else {
@@ -94,7 +101,7 @@ class StiHandler extends StiDataHandler
 
             foreach ($arr as $value) {
                 $name = mb_strpos($value, ' ') > 0 ? mb_substr($value, mb_strpos($value, ' ')) : '';
-                $address = $name !== null && \strlen($name) > 0 ? mb_substr($value, 0, mb_strpos($value, ' ')) : $value;
+                $address = $name !== null && strlen($name) > 0 ? mb_substr($value, 0, mb_strpos($value, ' ')) : $value;
 
                 if ($param == 'cc') {
                     $mail->addCC($address, $name);
@@ -139,7 +146,7 @@ class StiHandler extends StiDataHandler
                 $variableObject->value = $item->value;
                 $variableObject->type = $item->type;
 
-                if (substr($item->type, -5) === 'Range') {
+                if (str_ends_with($item->type, 'Range')) {
                     $variableObject->value = new StiVariableRange();
                     $variableObject->value->from = $item->value->from;
                     $variableObject->value->to = $item->value->to;
@@ -155,13 +162,13 @@ class StiHandler extends StiDataHandler
             $variables = [];
             foreach ($result->object->variables as $key => $item) {
                 // Send only changed or new values
-                if (! \array_key_exists($key, $request->variables)
+                if (! array_key_exists($key, $request->variables)
                     || $item->value != $request->variables[$key]->value
-                    || substr($item->type, -5) === 'Range' && (
+                    || str_ends_with($item->type, 'Range') && (
                         $item->value->from != $request->variables[$key]->value->from
                         || $item->value->to != $request->variables[$key]->value->to)
                 ) {
-                    if (! \is_object($item)) {
+                    if (! is_object($item)) {
                         $item = (object) $item;
                     }
                     $item->name = $key;
@@ -247,7 +254,7 @@ class StiHandler extends StiDataHandler
 
     private function invokeEmailReport($request)
     {
-        throw new \BadMethodCallException();
+        throw new BadMethodCallException();
         /*
         $settings = new StiEmailSettings();
         $settings->to = $request->settings->email;
@@ -422,117 +429,20 @@ class StiHandler extends StiDataHandler
     }
 
     /** Get the HTML representation of the component. */
-    public function getHtml()
+    public function getHtml(): string
     {
-        $csrf_token = \function_exists('csrf_token') ? csrf_token() : null;
+        $csrf_token = function_exists('csrf_token') ? csrf_token() : null;
         $databases = json_encode(StiDatabaseType::getTypes());
 
-        $result = /* @lang JavaScript */
-            "StiHelper.prototype.process = function (args, callback) {
-                if (args) {
-                    if (args.event === 'BeginProcessData' || args.event === 'EndProcessData') {
-                        let databases = $databases;
-                        if (!databases.includes(args.database))
-                            return null;
+        $params = [
+            'databases' => $databases,
+            'url' => $this->options->url,
+            'timeout' => $this->options->timeout,
+            'csrf_token' => $csrf_token,
+        ];
 
-                        args.preventDefault = true;
-                    }
-
-                    if (callback)
-                        args.async = true;
-
-                    let command = {};
-                    for (let p in args) {
-                        if (p === 'report') {
-                            if (args.report && (args.event === 'CreateReport' || args.event === 'SaveReport' || args.event === 'SaveAsReport'))
-                                command.report = JSON.parse(args.report.saveToJsonString());
-                        } else if (p === 'settings' && args.settings) command.settings = args.settings;
-                        else if (p === 'data') command.data = Stimulsoft.System.Convert.toBase64String(args.data);
-                        else if (p === 'variables') command[p] = this.getVariables(args[p]);
-                        else command[p] = args[p];
-                    }
-
-                    let sendText = Stimulsoft.Report.Dictionary.StiSqlAdapterService.encodeCommand(command);
-                    let handlerCallback = function (args) {
-                        if (!Stimulsoft.System.StiString.isNullOrEmpty(args.notice))
-                            Stimulsoft.System.StiError.showError(args.notice, true, args.success);
-                        if (callback) callback(args);
-                    }
-                    Stimulsoft.Helper.send(sendText, handlerCallback);
-                }
-            }
-
-            StiHelper.prototype.send = function (json, callback) {
-                let request = new XMLHttpRequest();
-                try {
-                    request.open('post', this.url, true);
-                    request.setRequestHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-                    request.setRequestHeader('Cache-Control', 'max-age=0');
-                    request.setRequestHeader('Pragma', 'no-cache');".($csrf_token ? "
-                    request.setRequestHeader('X-CSRF-TOKEN', '$csrf_token');" : '')."
-                    request.timeout = this.timeout * 1000;
-                    request.onload = function () {
-                        if (request.status === 200) {
-                            let responseText = request.responseText;
-                            request.abort();
-
-                            try {
-                                let args = Stimulsoft.Report.Dictionary.StiSqlAdapterService.decodeCommandResult(responseText);
-                                if (args.report) {
-                                    let json = args.report;
-                                    args.report = new Stimulsoft.Report.StiReport();
-                                    args.report.load(json);
-                                }
-
-                                callback(args);
-                            } catch (e) {
-                                Stimulsoft.System.StiError.showError(e.message);
-                            }
-                        } else {
-                            Stimulsoft.System.StiError.showError('Server response error: [' + request.status + '] ' + request.statusText);
-                        }
-                    };
-                    request.onerror = function (e) {
-                        let errorMessage = 'Connect to remote error: [' + request.status + '] ' + request.statusText;
-                        Stimulsoft.System.StiError.showError(errorMessage);
-                    };
-                    request.send(json);
-                } catch (e) {
-                    let errorMessage = 'Connect to remote error: ' + e.message;
-                    Stimulsoft.System.StiError.showError(errorMessage);
-                    request.abort();
-                }
-            };
-
-            StiHelper.prototype.isNullOrEmpty = function (value) {
-                return value == null || value === '' || value === undefined;
-            }
-
-            StiHelper.prototype.getVariables = function (variables) {
-                if (variables) {
-                    for (let variable of variables) {
-                        if (variable.type === 'DateTime' && variable.value != null)
-                            variable.value = variable.value.toString('YYYY-MM-DD HH:mm:SS');
-                    }
-                }
-
-                return variables;
-            }
-
-            function StiHelper(url, timeout) {
-                this.url = url;
-                this.timeout = timeout;
-
-                if (Stimulsoft && Stimulsoft.StiOptions) {
-                    Stimulsoft.StiOptions.WebServer.url = url;
-                    Stimulsoft.StiOptions.WebServer.timeout = timeout;
-                }
-            }
-
-            Stimulsoft = Stimulsoft || {};
-            Stimulsoft.Helper = new StiHelper('{$this->options->url}', {$this->options->timeout})
-            jsHelper = typeof jsHelper !== 'undefined' ? jsHelper : Stimulsoft.Helper;
-            ";
+        $tpl = file_get_contents(__DIR__.'/views/handler.tpl.js');
+        $result = Helpers::parseTemplate($tpl, $params);
 
         if (! $this->encryptData) {
             $result .= "StiOptions.WebServer.encryptData = false;\n";
@@ -554,7 +464,7 @@ class StiHandler extends StiDataHandler
     }
 
     /** Output of the HTML representation of the component. */
-    public function renderHtml()
+    public function renderHtml(): void
     {
         echo $this->getHtml();
     }

@@ -29,7 +29,7 @@ class StiViewerOptions extends StiComponentOptions
     public $height = '';
 
     /** Get the HTML representation of the component. */
-    public function getHtml()
+    public function getHtml(): string
     {
         if (strpos($this->property, '.') > 0) {
             return parent::getHtml();

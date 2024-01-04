@@ -4,15 +4,15 @@ namespace Stimulsoft;
 
 class StiJavaScript
 {
-    public $componentType;
+    public string $componentType;
 
-    public $options;
+    public ?StiJavaScriptOptions $options = null;
 
-    public $usePacked = false;
+    public bool $usePacked = false;
 
-    public $useRelativeUrls = true;
+    public bool $useRelativeUrls = true;
 
-    public function getHtml()
+    public function getHtml(): string
     {
         $dashboards = class_exists('\Stimulsoft\Report\StiDashboard');
         $extension = $this->usePacked ? 'pack.js' : 'js';
@@ -65,12 +65,12 @@ class StiJavaScript
         return $result;
     }
 
-    public function renderHtml()
+    public function renderHtml(): void
     {
         echo $this->getHtml();
     }
 
-    public function __construct($componentType, $options = null)
+    public function __construct(string $componentType, $options = null)
     {
         $this->componentType = $componentType;
         $this->options = $options != null ? $options : new StiJavaScriptOptions();

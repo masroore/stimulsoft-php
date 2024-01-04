@@ -7,7 +7,7 @@ use Stimulsoft\StiComponentOptions;
 /** A class which controls settings of the viewer toolbar. */
 class StiToolbarOptions extends StiComponentOptions
 {
-    protected $enums = [
+    protected array $enums = [
         'displayMode', 'alignment', 'printDestination', 'viewMode', 'zoom', 'showMenuMode',
     ];
 
