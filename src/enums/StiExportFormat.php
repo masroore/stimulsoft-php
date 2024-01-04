@@ -30,7 +30,7 @@ class StiExportFormat
 
     public const Document = 1000;
 
-    public static function getFileExtension($format)
+    public static function getFileExtension(int $format): string
     {
         return match ($format) {
             self::Pdf => 'pdf',
@@ -47,10 +47,9 @@ class StiExportFormat
             self::Document => 'mdc',
             default => strtolower($format),
         };
-
     }
 
-    public static function getMimeType($format)
+    public static function getMimeType(int $format): string
     {
         return match ($format) {
             self::Pdf => 'application/pdf',
@@ -67,12 +66,11 @@ class StiExportFormat
             self::Document => 'text/xml',
             default => 'text/plain',
         };
-
     }
 
-    public static function getFormatName($format)
+    public static function getFormatName(int $format): string
     {
-        $class = new \ReflectionClass('\Stimulsoft\StiExportFormat');
+        $class = new \ReflectionClass(StiExportFormat::class);
         $constants = $class->getConstants();
         $names = array_flip($constants);
 
