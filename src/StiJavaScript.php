@@ -4,7 +4,7 @@ namespace Stimulsoft;
 
 class StiJavaScript
 {
-    public string $componentType;
+    public StiComponentType $componentType;
 
     public ?StiJavaScriptOptions $options = null;
 
@@ -39,11 +39,11 @@ class StiJavaScript
             $scripts[] = "stimulsoft.dashboards.$extension";
         }
 
-        if ($this->componentType == StiComponentType::Viewer->value || $this->componentType == StiComponentType::Designer->value) {
+        if ($this->componentType == StiComponentType::Viewer || $this->componentType == StiComponentType::Designer) {
             $scripts[] = "stimulsoft.viewer.$extension";
         }
 
-        if ($this->componentType == StiComponentType::Designer->value) {
+        if ($this->componentType == StiComponentType::Designer) {
             $scripts[] = "stimulsoft.designer.$extension";
 
             if ($this->options->blocklyEditor) {
@@ -70,7 +70,7 @@ class StiJavaScript
         echo $this->getHtml();
     }
 
-    public function __construct(string $componentType, $options = null)
+    public function __construct(StiComponentType $componentType, $options = null)
     {
         $this->componentType = $componentType;
         $this->options = $options != null ? $options : new StiJavaScriptOptions();
